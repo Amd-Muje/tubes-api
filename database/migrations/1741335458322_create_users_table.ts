@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('name').notNullable()
       table.string('email').notNullable().unique()
       table.string('password').notNullable()
-      table.enum('role', ['admin', 'campaigner', 'donatur']).defaultTo('campaigner')
+      table.enum('role', ['admin', 'user']).defaultTo('user').notNullable()
       table.timestamp('created_at', { useTz: true }).defaultTo(this.now()).notNullable()
       table.timestamp('updated_at', { useTz: true }).defaultTo(this.now()).nullable()
     })
