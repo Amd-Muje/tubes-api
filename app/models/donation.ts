@@ -23,9 +23,6 @@ export default class Donation extends BaseModel {
   @column()
   declare paymentMethod: string
 
-  @column()
-  declare transactionId: string | null
-
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

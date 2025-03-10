@@ -14,9 +14,6 @@ export default class Transaction extends BaseModel {
   declare paymentMethod: string
 
   @column()
-  declare transactionId: string | null
-
-  @column()
   declare status: 'pending' | 'success' | 'failed'
 
   @column.dateTime({ autoCreate: true })
