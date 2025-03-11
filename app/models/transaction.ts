@@ -11,10 +11,13 @@ export default class Transaction extends BaseModel {
   declare donationId: number
 
   @column()
+  declare order_id : string
+
+  @column()
   declare paymentMethod: string
 
   @column()
-  declare status: 'pending' | 'success' | 'failed'
+  declare status: 'pending' | 'success' | 'failed' | 'canceled'
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
