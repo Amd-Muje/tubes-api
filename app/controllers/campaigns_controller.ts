@@ -28,6 +28,7 @@ export default class CampaignsController {
                 updateAt : campaign.updatedAt
             }))})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -59,6 +60,7 @@ export default class CampaignsController {
                 updateAt : campaign.updatedAt
             }})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -83,6 +85,7 @@ export default class CampaignsController {
             const campaign = await Campaign.create({...data, status: 'pending'})
             return response.status(201).json(campaign)
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })            
         }
     }
@@ -113,6 +116,7 @@ export default class CampaignsController {
     
             return response.json({messages: `Campaign has been ${status}`})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -135,6 +139,7 @@ export default class CampaignsController {
     
             return response.status(202).json({message: 'Campaign deleted successfully'})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }

@@ -28,6 +28,7 @@ export default class DonationsController {
                 updateAt : donation.updatedAt
             }))})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -45,7 +46,7 @@ export default class DonationsController {
             }
             return response.json({donation: {
                 id: donation.id,
-                OwnerCampaign: donation.user?.name,
+                ownerCampaign: donation.user?.name,
                 userId: donation.userId,
                 campaign: donation.campaign.title,
                 amount: donation.amount,
@@ -55,6 +56,7 @@ export default class DonationsController {
                 updateAt : donation.updatedAt
             }})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -81,13 +83,14 @@ export default class DonationsController {
 
             campaign.merge
             ({
-                collectedAmount: campaign.collectedAmount + data.amount
+                collectedAmount: Number(campaign.collectedAmount ?? 0) + Number(data.amount)
             })
             await campaign.useTransaction(trx).save()
 
             const transaction = await Transaction.create({
                 donationId: donation.id,
                 paymentMethod: data.paymentMethod,
+                order_id: `TRX-${Date.now()}`,
                 status: 'pending'
             }, { client: trx })
 
@@ -96,6 +99,7 @@ export default class DonationsController {
             return response.status(201).json({message : "Donation Created Succesfully", donation, transaction})
         } catch (error) {
             await trx.rollback()
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -117,11 +121,16 @@ export default class DonationsController {
                 return response.status(400).json({ message: 'Invalid payment status' })
             }
 
+            if (donation.paymentStatus === 'success' || donation.paymentStatus === 'failed') {
+                return response.status(400).json({ message: 'Cannot update completed donations' })
+            }
+
             donation.paymentStatus = paymentStatus;
             await donation.save()
     
             return response.json({message : "Donation Updated",donation})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }
@@ -141,6 +150,7 @@ export default class DonationsController {
     
             return response.status(202).json({message : "Donation Deleted"})
         } catch (error) {
+            console.log(error)
             return response.status(500).json({ message: 'Internal server error' })
         }
     }

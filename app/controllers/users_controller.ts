@@ -87,7 +87,7 @@ export default class UsersController {
     
             return response.json({message: "user updated succesfully", user: {id: userData.id, name: userData.name, email: userData.email}})    
         } catch (error) {
-            
+            return response.status(500).json({ message: 'Internal server error' })
         } 
     }
 
