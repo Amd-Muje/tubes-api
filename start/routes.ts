@@ -42,3 +42,5 @@ router
   })
   .prefix('/api/')
 router.on('/').renderInertia('home')
+router.on('/login').renderInertia('login')
+router.on('/register').renderInertia('register')

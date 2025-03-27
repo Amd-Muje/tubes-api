@@ -67,6 +67,7 @@
     "@tailwindcss/vite": "^4.0.13",
     "@vinejs/vine": "^3.0.0",
     "edge.js": "^6.2.1",
+    "lucide-react": "^0.482.0",
     "luxon": "^3.5.0",
     "mysql2": "^3.13.0",
     "react": "^19.0.0",
