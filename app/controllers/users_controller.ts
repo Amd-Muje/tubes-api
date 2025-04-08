@@ -41,7 +41,7 @@ export default class UsersController {
 
     // Create User
     public async store({ request, response }: HttpContext) {
-        const data = request.only(['name', 'email', 'password', 'role'])
+        const data = request.only(['name', 'email', 'password'])
         const user = await User.create(data)
 
         return response.status(201).json({message: 'user registered succesfully', user})
