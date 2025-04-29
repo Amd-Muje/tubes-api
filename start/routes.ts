@@ -5,19 +5,17 @@ import CampaignsController from '#controllers/campaigns_controller'
 import DonationsController from '#controllers/donations_controller'
 import TransactionsController from '#controllers/transactions_controller'
 
-// router.on('/').render('pages/home')
-
 
 router.post('/users', [UsersController, 'store'])
 router.post('/users/login', [UsersController, 'login'])
 
-router.group(() => {
-    router.get('/campaigns', [CampaignsController, 'index'])
-    router.get('/campaigns/:id', [CampaignsController, 'show'])
-    router.post('/campaigns', [CampaignsController, 'store'])
-    router
-      .put('/campaigns/:id', [CampaignsController, 'updateStatus'])
-      
+router
+.group(() => {
+  router.get('/campaigns', [CampaignsController, 'index'])
+  router.post('/campaigns', [CampaignsController, 'store'])
+  router.get('/campaigns/:id', [CampaignsController, 'show'])
+    router.put('/campaigns/:id', [CampaignsController, 'updateStatus'])
+
     router.delete('/campaigns/:id', [CampaignsController, 'destroy'])
 
     router.get('/users', [UsersController, 'index'])
@@ -34,13 +32,12 @@ router.group(() => {
     router.get('/transactions', [TransactionsController, 'index'])
     router.get('/transactions/:id', [TransactionsController, 'show'])
     router.post('/transactions', [TransactionsController, 'store'])
-    router
-      .put('/transactions/:id', [TransactionsController, 'update'])
-      
-    router
-      .delete('/transactions/:id', [TransactionsController, 'destroy'])
-      
-    }).middleware(middleware.auth()).prefix('/api/')
+    router.put('/transactions/:id', [TransactionsController, 'update'])
+
+    router.delete('/transactions/:id', [TransactionsController, 'destroy'])
+  })
+  .middleware(middleware.auth({ guards: ['api'] }))
+  .prefix('/api/')
     
     router.on('/').renderInertia('home')
 

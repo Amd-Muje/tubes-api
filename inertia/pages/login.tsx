@@ -27,15 +27,22 @@ const Login = () => {
 
       const data = await response.json()
 
+  
+      const token = data.token.headers.authorization
+ 
+      console.log(token)
+
+      localStorage.setItem('authToken', token)
+
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')
       }
 
       // Save the token to localStorage or sessionStorage
-      localStorage.setItem('authToken', data.token.token)
+      localStorage.setItem('authToken', token)
 
       // Redirect to home page after successful login
-      window.location.href = '/'
+      window.location.href = '/' 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -46,7 +53,7 @@ const Login = () => {
   return (
     <div className="h-screen flex justify-center items-center p-5">
       <div className="p-10 bg-white rounded-lg shadow-md flex items-center gap-4 w-full h-full">
-        <div className="w-[35%]">
+        <div className="w-[35%] flex flex-col "> 
           <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">Welcome Back</h1>
           <p className="text-center text-gray-600 mb-6">Please enter your credentials to log in</p>
 
