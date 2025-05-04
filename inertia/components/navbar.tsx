@@ -1,8 +1,9 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import { router } from '@inertiajs/react'
+import { useState } from 'react'
 
-export default function Header() {
+export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
@@ -57,14 +58,19 @@ export default function Header() {
               />
               <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
             </div>
-            <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md">
+            <a href="/login">
+            <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md cursor-pointer">
               Sign In
             </button>
+            </a>
           </div>
 
           {/* Mobile menu button */}
-          <button className="md:hidden text-white focus:outline-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <i className={`ph ${isMenuOpen ? "ph-x" : "ph-list"} text-2xl`}></i>
+          <button
+            className="md:hidden text-white focus:outline-none"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <i className={`ph ${isMenuOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i>
           </button>
         </div>
 
@@ -107,9 +113,13 @@ export default function Header() {
                 </div>
               </li>
               <li className="pt-2">
-                <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md w-full">
+                <a href="/login">
+                <button
+                  className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md w-full cursor-pointer"
+                  >
                   Sign In
                 </button>
+                  </a>
               </li>
             </ul>
           </nav>

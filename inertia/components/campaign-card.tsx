@@ -5,10 +5,9 @@ import { useState } from 'react'
 
 interface Campaign {
   id: string
-  userId: string
-  user: {
-    name: string
-    avatar: string
+  user?: {
+    name?: string
+    avatar?: string
   }
   title: string
   description: string
@@ -57,13 +56,13 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
           <div className="flex items-center">
             <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white">
               <img
-                src={campaign.user.avatar || '/placeholder.svg'}
-                alt={campaign.user.name}
+                src={campaign.user?.avatar || '/placeholder.svg'}
+                alt={campaign.user?.name || 'User'}
                 className="w-full h-full object-cover"
               />
             </div>
             <span className="ml-2 text-white text-sm font-medium drop-shadow-md">
-              {campaign.user.name}
+              {campaign.user?.name}
             </span>
           </div>
           <span
@@ -71,8 +70,8 @@ export default function CampaignCard({ campaign }: CampaignCardProps) {
               campaign.status === 'active'
                 ? 'bg-green-500 text-white'
                 : campaign.status === 'completed'
-                ? 'bg-blue-500 text-white'
-                : 'bg-yellow-500 text-white'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-yellow-500 text-white'
             }`}
           >
             {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}

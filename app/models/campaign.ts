@@ -12,6 +12,12 @@ export default class Campaign extends BaseModel {
 
   @column()
   declare title: string
+  
+  @column()
+  declare img_url: string
+
+  @column()
+  declare category: string
 
   @column()
   declare description: string
