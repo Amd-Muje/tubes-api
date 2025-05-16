@@ -5,15 +5,14 @@ import CampaignsController from '#controllers/campaigns_controller'
 import DonationsController from '#controllers/donations_controller'
 import TransactionsController from '#controllers/transactions_controller'
 
-
 router.post('/users', [UsersController, 'store'])
 router.post('/users/login', [UsersController, 'login'])
 
 router
-.group(() => {
-  router.get('/campaigns', [CampaignsController, 'index'])
-  router.post('/campaigns', [CampaignsController, 'store'])
-  router.get('/campaigns/:id', [CampaignsController, 'show'])
+  .group(() => {
+    router.get('/campaigns', [CampaignsController, 'index'])
+    router.post('/campaigns', [CampaignsController, 'store'])
+    router.get('/campaign/:id', [CampaignsController, 'show'])
     router.put('/campaigns/:id', [CampaignsController, 'updateStatus'])
 
     router.delete('/campaigns/:id', [CampaignsController, 'destroy'])
@@ -38,8 +37,10 @@ router
   })
   .middleware(middleware.auth({ guards: ['api'] }))
   .prefix('/api/')
-    
-    router.on('/').renderInertia('home')
+
+router.on('/').renderInertia('home')
+// Tambahkan ini
+router.get('/detail/:id', [CampaignsController, 'detail'])
 
 router.on('/login').renderInertia('login')
 router.on('/register').renderInertia('register')

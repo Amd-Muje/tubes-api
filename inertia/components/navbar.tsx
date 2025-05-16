@@ -59,9 +59,9 @@ export default function Navbar() {
               <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
             </div>
             <a href="/login">
-            <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md cursor-pointer">
-              Sign In
-            </button>
+              <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md cursor-pointer">
+                Sign In
+              </button>
             </a>
           </div>
 
@@ -114,12 +114,10 @@ export default function Navbar() {
               </li>
               <li className="pt-2">
                 <a href="/login">
-                <button
-                  className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md w-full cursor-pointer"
-                  >
-                  Sign In
-                </button>
-                  </a>
+                  <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md w-full cursor-pointer">
+                    Sign In
+                  </button>
+                </a>
               </li>
             </ul>
           </nav>

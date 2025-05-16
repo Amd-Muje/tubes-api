@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart, Info, Share2, Users, Calendar } from 'lucide-react'
+import { apiService } from '~/service/utility'
 
 interface Campaign {
   id: string
@@ -21,44 +22,31 @@ interface Campaign {
   backers: number
 }
 
-const CampaignDetailPage = ({ campaignId }: { campaignId: string }) => {
+const CampaignDetailPage = ({ id }: { id: string }) => {
   const [campaign, setCampaign] = useState<Campaign | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!id) return
+
     const fetchCampaign = async () => {
-      const token = localStorage.getItem('authToken')
-      if (!token) {
-        setError('Authentication token is missing')
-        setLoading(false)
-        return
-      }
-
       try {
-        const response = await fetch(`/api/campaigns/${campaignId}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`,
-          },
-        })
-        console.log(token)
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch campaign: ${response.statusText}`)
-        }
-
-        const data = await response.json()
-        setCampaign(data)
+        setLoading(true)
+        const data = await apiService.getCampaignById(id)
+        setCampaign(data.campaign) // Perhatikan struktur response
       } catch (err: any) {
         setError(err.message)
+        if (err.message.includes('Unauthorized')) {
+          window.location.href = '/login'
+        }
       } finally {
         setLoading(false)
       }
     }
 
     fetchCampaign()
-  }, [campaignId])
+  }, [id])
 
   if (loading) {
     return (

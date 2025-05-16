@@ -1,6 +1,5 @@
 'use client'
 
-
 export default function Hero() {
   return (
     <section className="relative bg-gradient-to-r from-blue-800 to-blue-900 text-white overflow-hidden">

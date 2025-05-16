@@ -16,8 +16,8 @@ export default class extends BaseSchema {
       table.enum('status', ['pending', 'approved', 'rejected', 'completed']).defaultTo('pending')
       table.timestamp('start_date').notNullable().defaultTo(this.now())
       table.timestamp('end_date').notNullable().nullable()
-      table.timestamp('created_at', {useTz: true}).defaultTo(this.now())
-      table.timestamp('updated_at', {useTz: true}).defaultTo(this.now())
+      table.timestamp('created_at', { useTz: true }).defaultTo(this.now())
+      table.timestamp('updated_at', { useTz: true }).defaultTo(this.now())
     })
   }
 

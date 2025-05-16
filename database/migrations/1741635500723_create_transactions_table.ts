@@ -6,10 +6,16 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').unsigned()
-      table.integer('donation_id').unsigned().references('id').inTable('donations').onDelete('CASCADE').notNullable()
+      table
+        .integer('donation_id')
+        .unsigned()
+        .references('id')
+        .inTable('donations')
+        .onDelete('CASCADE')
+        .notNullable()
       table.string('payment_method').notNullable()
       table.string('order_id').unique()
-      table.enum('status' , ['pending', 'success', 'failed', 'canceled']).defaultTo('pending')
+      table.enum('status', ['pending', 'success', 'failed', 'canceled']).defaultTo('pending')
       table.timestamp('created_at', { useTz: true }).defaultTo(this.now())
       table.timestamp('updated_at', { useTz: true }).defaultTo(this.now())
     })
