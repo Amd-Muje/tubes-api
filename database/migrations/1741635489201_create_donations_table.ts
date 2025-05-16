@@ -6,8 +6,20 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').unsigned()
-      table.integer('user_id').unsigned().notNullable().references('id').inTable('users').onDelete('CASCADE')
-      table.integer('campaign_id').unsigned().notNullable().references('id').inTable('campaigns').onDelete('CASCADE')
+      table
+        .integer('user_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('users')
+        .onDelete('CASCADE')
+      table
+        .integer('campaign_id')
+        .unsigned()
+        .notNullable()
+        .references('id')
+        .inTable('campaigns')
+        .onDelete('CASCADE')
       table.decimal('amount', 15, 2).notNullable()
       table.enum('payment_status', ['pending', 'success', 'failed']).defaultTo('pending')
       table.string('payment_method').notNullable()

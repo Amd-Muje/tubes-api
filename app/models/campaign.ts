@@ -12,7 +12,7 @@ export default class Campaign extends BaseModel {
 
   @column()
   declare title: string
-  
+
   @column()
   declare img_url: string
 
@@ -44,5 +44,5 @@ export default class Campaign extends BaseModel {
   declare updatedAt: DateTime
 
   @belongsTo(() => User)
-  declare user: BelongsTo <typeof User>
+  declare user: BelongsTo<typeof User>
 }

@@ -179,4 +179,7 @@ export default class CampaignsController {
       return response.status(500).json({ message: 'Internal server error' })
     }
   }
+  public async detail({ inertia, params }: HttpContext) {
+    return inertia.render('detail', { id: params.id })
+  }
 }
