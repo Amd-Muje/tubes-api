@@ -1,10 +1,31 @@
 'use client'
 
-import { router } from '@inertiajs/react'
+import { router, Link } from '@inertiajs/react'
 import { useState } from 'react'
 
-export default function Navbar() {
+interface NavbarProps {
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    img_url?: string | null; // img_url bersifat opsional
+    role: 'admin' | 'user';
+  } | null; // user bisa null jika tidak login
+}
+
+export default function Navbar({ user }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+
+  const handleLogout = async () => {
+    // Panggil endpoint logout API Anda jika ada
+    // Misalnya: await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` } });
+
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user'); // Hapus juga data user dari localStorage jika ada
+    router.visit('/login'); // Redirect ke halaman login
+  }
+
 
   return (
     <header className="bg-gradient-to-r from-blue-700 to-blue-800 text-white shadow-lg sticky top-0 z-50">
@@ -58,11 +79,64 @@ export default function Navbar() {
               />
               <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
             </div>
-            <a href="/login">
-              <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md cursor-pointer">
-                Sign In
-              </button>
-            </a>
+
+            {/* Kondisional rendering untuk Login/Sign In vs Profil */}
+            {!user ? ( // Jika user TIDAK login
+              <Link href="/login">
+                <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md cursor-pointer">
+                  Sign In
+                </button>
+              </Link>
+            ) : (
+              // Jika user SUDAH login, tampilkan profil div
+              <div className="relative">
+                <div
+                  className="flex items-center space-x-2 cursor-pointer group"
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)} // Menutup dropdown saat klik di luar
+                  tabIndex={0} // Membuat div bisa di-fokus
+                >
+                  <img
+                    src={user.img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`} // Fallback jika img_url null
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
+                  />
+                  <span className="font-medium text-white group-hover:text-blue-200 transition-colors">
+                    {user.name.split(' ')[0]} {/* Tampilkan hanya nama depan */}
+                  </span>
+                  <i className={`ph ph-caret-down transition-transform duration-200 ${isProfileDropdownOpen ? 'rotate-180' : ''}`}></i>
+                </div>
+
+                {/* Dropdown Menu */}
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-xl py-2 z-50">
+                    <Link
+                      href={`/profile/${user.id}`} // Sesuaikan dengan rute profil Anda
+                      className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      My Profile
+                    </Link>
+                    <Link
+                      href="/settings" // Sesuaikan dengan rute pengaturan Anda
+                      className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsProfileDropdownOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}

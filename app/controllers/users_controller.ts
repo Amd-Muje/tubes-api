@@ -71,6 +71,7 @@ export default class UsersController {
         name: user.name,
         email: user.email,
         role: user.role,
+        img_url: user.img_url,
       },
       token,
     })
@@ -93,7 +94,7 @@ export default class UsersController {
 
       return response.json({
         message: 'user updated succesfully',
-        user: { id: userData.id, name: userData.name, email: userData.email },
+        user: { id: userData.id, name: userData.name, email: userData.email, img_url: userData.img_url, },
       })
     } catch (error) {
       return response.status(500).json({ message: 'Internal server error' })

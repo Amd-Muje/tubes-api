@@ -10,6 +10,8 @@ router.post('/users/login', [UsersController, 'login'])
 
 router
   .group(() => {
+
+
     router.get('/campaigns', [CampaignsController, 'index'])
     router.post('/campaigns', [CampaignsController, 'store'])
     router.get('/campaign/:id', [CampaignsController, 'show'])
