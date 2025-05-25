@@ -70,6 +70,7 @@
     "edge.js": "^6.2.1",
     "lucide-react": "^0.479.0",
     "luxon": "^3.5.0",
+    "midtrans-client-typescript": "github:FerryAr/midtrans-client-typescript",
     "mysql2": "^3.13.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

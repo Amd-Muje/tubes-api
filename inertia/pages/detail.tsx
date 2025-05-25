@@ -159,10 +159,12 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           </div>
 
           <div className="flex gap-3">
+            <a href="/api/donation" className='flex gap-3'>
             <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors">
               <Heart size={18} className="mr-2" />
               Donate
             </button>
+            </a>
             <button className="w-12 h-12 border border-gray-200 rounded flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
               <Info size={18} />
             </button>
