@@ -1,6 +1,6 @@
 'use client'
 
-import { formatCurrency, formatDate, calculateProgress, daysRemaining } from '../lib/utils'
+import { formatCurrency, formatDate, calculateProgress, daysRemaining } from '../../../lib/utils'
 import { useState } from 'react'
 
 interface Campaign {

@@ -3,11 +3,17 @@ import User from '#models/user'
 import hash from '@adonisjs/core/services/hash'
 
 export default class UsersController {
+
   // Get All Users
-  public async index({ auth, response }: HttpContext) {
+  public async index({ auth, response ,inertia}: HttpContext) {
     try {
       const user = auth.user
       const users = await User.all()
+      inertia.share({
+        auth: {
+          user: auth.user
+        }
+      })
       // Jika User selain role admin yang minta data user yang keluar cuma nama
       if (user?.role !== 'admin') {
         return response.json({ users: users.map((user) => ({ name: user.name })) })
@@ -111,6 +117,7 @@ export default class UsersController {
       }
       // User sendiri yang mau ba hapus
       if (user?.id === userToDelete.id) {
+        // await auth.use('api').
         await userToDelete.delete()
         return response.status(202).json({ message: 'User self deleted successfully' })
       }

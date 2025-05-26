@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import CampaignCard from './campaign-card'
+import CampaignCard from './components/campaign-card'
 import { apiService } from '~/service/utility'
 import { router } from '@inertiajs/react'
 // import { useRouter } from 'next/router'

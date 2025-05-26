@@ -1,8 +1,8 @@
 'use client'
 
-import CampaignList from '../components/campaign-list'
+import CampaignList from './Campaigns/campaign-list'
 import { Head } from '@inertiajs/react'
-import Hero from '~/components/hero'
+import Hero from '~/pages/hero'
 import DefaultLayout from '~/layout/default-layout'
 
 export default function Home() {

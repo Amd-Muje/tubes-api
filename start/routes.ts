@@ -6,11 +6,19 @@ import DonationsController from '#controllers/donations_controller'
 import TransactionsController from '#controllers/transactions_controller'
 import PaymentController from '#controllers/payment-controller'
 
+router.on('/').renderInertia('home')
+
+router.get('/detail/:id', [CampaignsController, 'detail'])
+  
+router.get('/payment' , [PaymentController, 'createSnapToken'])
+  
+router.on('/login').renderInertia('Auth/login')
+router.on('/register').renderInertia('Auth/register')
 router.post('/users', [UsersController, 'store'])
 router.post('/users/login', [UsersController, 'login'])
+router.get('/campaign', [CampaignsController, 'create'])
 
-router
-  .group(() => {
+router.group(() => {
     router.get('/donation', [DonationsController, 'donate'])
 
     
@@ -39,13 +47,7 @@ router
     
     router.delete('/transactions/:id', [TransactionsController, 'destroy'])
   })
-  .middleware(middleware.auth({ guards: ['api'] }))
+  .middleware(middleware.auth())
   .prefix('/api/')
   
-  router.on('/').renderInertia('home')
-  // Tambahkan ini
-  router.get('/detail/:id', [CampaignsController, 'detail'])
-  router.get('/payment' , [PaymentController, 'createSnapToken'])
-  
-router.on('/login').renderInertia('login')
-router.on('/register').renderInertia('register')
+
