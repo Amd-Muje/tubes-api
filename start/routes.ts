@@ -6,22 +6,29 @@ import DonationsController from '#controllers/donations_controller'
 import TransactionsController from '#controllers/transactions_controller'
 import PaymentController from '#controllers/payment-controller'
 
-router.post('/users', [UsersController, 'store'])
-router.post('/users/login', [UsersController, 'login'])
+router.on('/').renderInertia('home')
 
-router
-  .group(() => {
-    router.get('/donation', [DonationsController, 'donate'])
+router.get('/detail/:id', [CampaignsController, 'detail'])
+router.get('/payment' , [PaymentController, 'createSnapToken'])
+router.on('/login').renderInertia('Auth/login').middleware(middleware.iner())
+router.on('/register').renderInertia('Auth/register')
+router.post('/users', [UsersController, 'store']).middleware(middleware.iner())
+router.post('/users/login', [UsersController, 'login']).middleware(middleware.iner())
+router.get('/campaigns', [CampaignsController, 'index'])
+router.get('/campaign/:id', [CampaignsController, 'show'])
+
+router.group(() => {
+  router.get('/donation', [DonationsController, 'donate'])
+  router.get('/campaign', [CampaignsController, 'create'])
 
     
-    router.get('/campaigns', [CampaignsController, 'index'])
     router.post('/campaigns', [CampaignsController, 'store'])
-    router.get('/campaign/:id', [CampaignsController, 'show'])
     router.put('/campaigns/:id', [CampaignsController, 'updateStatus'])
     
     router.delete('/campaigns/:id', [CampaignsController, 'destroy'])
     
     router.get('/users', [UsersController, 'index'])
+    router.get('/me', [UsersController, 'me'])
     router.get('/users/:id', [UsersController, 'show'])
     router.put('/users/:id', [UsersController, 'update'])
     router.delete('/users/:id', [UsersController, 'destroy'])
@@ -39,13 +46,10 @@ router
     
     router.delete('/transactions/:id', [TransactionsController, 'destroy'])
   })
-  .middleware(middleware.auth({ guards: ['api'] }))
+  .use([
+    middleware.iner(),
+    middleware.auth()
+  ])
   .prefix('/api/')
   
-  router.on('/').renderInertia('home')
-  // Tambahkan ini
-  router.get('/detail/:id', [CampaignsController, 'detail'])
-  router.get('/payment' , [PaymentController, 'createSnapToken'])
-  
-router.on('/login').renderInertia('login')
-router.on('/register').renderInertia('register')
+

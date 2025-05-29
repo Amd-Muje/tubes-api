@@ -3,11 +3,17 @@ import User from '#models/user'
 import hash from '@adonisjs/core/services/hash'
 
 export default class UsersController {
+
   // Get All Users
-  public async index({ auth, response }: HttpContext) {
+  public async index({ auth, response ,inertia}: HttpContext) {
     try {
       const user = auth.user
       const users = await User.all()
+      inertia.share({
+        auth: {
+          user: auth.user
+        }
+      })
       // Jika User selain role admin yang minta data user yang keluar cuma nama
       if (user?.role !== 'admin') {
         return response.json({ users: users.map((user) => ({ name: user.name })) })
@@ -50,9 +56,11 @@ export default class UsersController {
   }
 
   // Login User
-  public async login({ auth, request, response }: HttpContext) {
-    const { email, password } = request.only(['email', 'password'])
+// Login User
+public async login({ auth, request, response, inertia }: HttpContext) {
+  const { email, password } = request.only(['email', 'password'])
 
+  try {
     const user = await User.findBy('email', email)
     if (!user) {
       return response.status(404).json({ message: 'User not found' })
@@ -62,20 +70,37 @@ export default class UsersController {
     if (!passwordValid) {
       return response.status(400).json({ message: 'Invalid password' })
     }
+    
     const token = await auth.use('api').authenticateAsClient(user, ['*'])
+
+    // Share auth data dengan inertia
+    inertia.share({
+      auth: {
+        user: {
+          id: user.id,
+          name: user.name, 
+          email: user.email,
+          role: user.role,
+          img_url: user.img_url
+        }
+      }
+    })
 
     return response.status(200).json({
       message: 'Login success',
       user: {
         id: user.id,
         name: user.name,
-        email: user.email,
+        email: user.email, 
         role: user.role,
         img_url: user.img_url,
       },
       token,
     })
+  } catch (error) {
+    return response.status(500).json({ message: 'Internal server error' })
   }
+}
 
   // Update User
   public async update({ params, request, response, auth }: HttpContext) {
@@ -111,6 +136,7 @@ export default class UsersController {
       }
       // User sendiri yang mau ba hapus
       if (user?.id === userToDelete.id) {
+        // await auth.use('api').
         await userToDelete.delete()
         return response.status(202).json({ message: 'User self deleted successfully' })
       }
@@ -120,6 +146,26 @@ export default class UsersController {
       }
       await userToDelete.delete()
       return response.status(202).json({ message: 'User deleted successfully' })
+    } catch (error) {
+      return response.status(500).json({ message: 'Internal server error' })
+    }
+  }
+  public async me({ auth, response }: HttpContext) {
+    try {
+      const user = auth.user
+      if (!user) {
+        return response.status(401).json({ message: 'Unauthorized' })
+      }
+  
+      return response.json({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          img_url: user.img_url
+        }
+      })
     } catch (error) {
       return response.status(500).json({ message: 'Internal server error' })
     }

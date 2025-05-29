@@ -1,10 +1,10 @@
 'use client'
 
-import { formatCurrency, formatDate, calculateProgress, daysRemaining } from '../lib/utils'
+import { formatCurrency, formatDate, calculateProgress, daysRemaining } from '../../../lib/utils'
 import { useState } from 'react'
 
-interface Campaign {
-  id: string
+export interface Campaign {
+  id: number
   user?: {
     name?: string
     avatar?: string

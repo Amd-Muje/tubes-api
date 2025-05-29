@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart, Info, Share2, Users, Calendar } from 'lucide-react'
-import { apiService } from '~/service/utility'
+// import { apiService } from '~/service/utility'
 
 interface Campaign {
   id: string
@@ -29,24 +29,24 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
 
   useEffect(() => {
     if (!id) return
-
-    const fetchCampaign = async () => {
-      try {
-        setLoading(true)
-        const data = await apiService.getCampaignById(id)
-        setCampaign(data.campaign) // Perhatikan struktur response
-      } catch (err: any) {
-        setError(err.message)
-        if (err.message.includes('Unauthorized')) {
-          window.location.href = '/login'
+      const fetchCampaigns = async () => {
+        try {
+          const response = await fetch(`/campaign/${id}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch campaigns')
+          }
+          const data = await response.json()
+          setCampaign(Array.isArray(data.campaigns) ? data.campaigns : [])
+        } catch (error: any) {
+          setError(error.message)
+          console.error('Error fetching campaigns:', error)
+        } finally {
+          setLoading(false)
         }
-      } finally {
-        setLoading(false)
       }
-    }
-
-    fetchCampaign()
-  }, [id])
+  
+      fetchCampaigns()
+    }, [id])
 
   if (loading) {
     return (

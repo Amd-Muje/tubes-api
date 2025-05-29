@@ -31,14 +31,18 @@ class ApiService {
     return response
   }
 
-  // Campaigns
-  async getCampaigns() {
-    const response = await this.fetchWithAuth('/campaigns')
-    return response.json()
-  }
+  // // Campaigns
+  // async getCampaigns() {
+  //   const response = await this.fetchWithAuth('/campaigns')
+  //   return response.json()
+  // }
 
-  async getCampaignById(id: string) {
-    const response = await this.fetchWithAuth(`/campaign/${id}`)
+  // async getCampaignById(id: string) {
+  //   const response = await this.fetchWithAuth(`/campaign/${id}`)
+  //   return response.json()
+  // }
+  async getCurrentUser() {
+    const response = await this.fetchWithAuth('/me')
     return response.json()
   }
 }

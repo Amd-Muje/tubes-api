@@ -1,31 +1,72 @@
 'use client'
 
-import { router, Link } from '@inertiajs/react'
-import { useState } from 'react'
+import { Link, usePage } from '@inertiajs/react'
+import { useEffect, useState } from 'react'
+import { apiService } from '~/service/utility'
 
-interface NavbarProps {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    img_url?: string | null; // img_url bersifat opsional
-    role: 'admin' | 'user';
-  } | null; // user bisa null jika tidak login
+interface User {
+  id: number
+  name: string
+  email: string
+  img_url?: string | null
+  role: 'admin' | 'user'
 }
 
-export default function Navbar({ user }: NavbarProps) {
+export interface PageProps {
+  auth: {
+    user: User | null
+  }
+  [key: string]: any
+}
+
+export default function Navbar() {
+  const { auth = { user: null } } = usePage<PageProps>().props
+  const [user, setUser] = useState<User | null>(auth?.user)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
 
-  const handleLogout = async () => {
-    // Panggil endpoint logout API Anda jika ada
-    // Misalnya: await fetch('/api/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` } });
+  useEffect(() => {
+    const validateUser = async () => {
+      try {
+        // Cek jika ada token
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          setUser(null)
+          return
+        }
 
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user'); // Hapus juga data user dari localStorage jika ada
-    router.visit('/login'); // Redirect ke halaman login
+        // Get current user data
+        const userData = await apiService.getCurrentUser()
+        setUser(userData.user)
+      } catch (error) {
+        console.error('Error validating user:', error)
+        // Clear token jika invalid
+        localStorage.removeItem('authToken')
+        setUser(null)
+      }
+    }
+
+    validateUser()
+  }, [user])
+
+  // Update handleLogout
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem('authToken')
+      setUser(null)
+      window.location.href = '/login'
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
   }
 
+  const getUserAvatar = (user: User) => {
+    return user.img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`
+  }
+
+  const getFirstName = (user: User) => {
+    return user.name.split(' ')[0]
+  }
 
   return (
     <header className="bg-gradient-to-r from-blue-700 to-blue-800 text-white shadow-lg sticky top-0 z-50">
@@ -35,38 +76,44 @@ export default function Navbar({ user }: NavbarProps) {
             <div className="bg-white text-blue-600 p-2 rounded-lg shadow-md mr-3">
               <i className="ph ph-hand-heart text-2xl"></i>
             </div>
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
-              FundTogether
-            </h1>
+            <Link href="/">
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+                FundTogether
+              </h1>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:block">
             <ul className="flex space-x-8">
               <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium">
+                <Link href="/" className="hover:text-blue-200 flex items-center font-medium">
                   <i className="ph ph-house mr-1"></i>
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium">
+                <Link href="/explore" className="hover:text-blue-200 flex items-center font-medium">
                   <i className="ph ph-compass mr-1"></i>
                   Explore
-                </a>
+                </Link>
               </li>
-              <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium">
-                  <i className="ph ph-plus-circle mr-1"></i>
-                  Create Campaign
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium">
-                  <i className="ph ph-user-circle mr-1"></i>
-                  Profile
-                </a>
-              </li>
+              {user && (
+                <li>
+                  <Link href="/campaign" className="hover:text-blue-200 flex items-center font-medium">
+                    <i className="ph ph-plus-circle mr-1"></i>
+                    Create Campaign
+                  </Link>
+                </li>
+              )}
+              {user && (
+                <li>
+                  <Link href={`/profile/${user.id}`} className="hover:text-blue-200 flex items-center font-medium">
+                    <i className="ph ph-user-circle mr-1"></i>
+                    Profile
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
 
@@ -80,29 +127,28 @@ export default function Navbar({ user }: NavbarProps) {
               <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
             </div>
 
-            {/* Kondisional rendering untuk Login/Sign In vs Profil */}
-            {!user ? ( // Jika user TIDAK login
+            {/* Conditional rendering for Login/Sign In vs Profile */}
+            {!user ? (
               <Link href="/login">
                 <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md cursor-pointer">
                   Sign In
                 </button>
               </Link>
             ) : (
-              // Jika user SUDAH login, tampilkan profil div
               <div className="relative">
                 <div
                   className="flex items-center space-x-2 cursor-pointer group"
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                  onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)} // Menutup dropdown saat klik di luar
-                  tabIndex={0} // Membuat div bisa di-fokus
+                  onBlur={() => setTimeout(() => setIsProfileDropdownOpen(false), 100)}
+                  tabIndex={0}
                 >
                   <img
-                    src={user.img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`} // Fallback jika img_url null
+                    src={getUserAvatar(user)}
                     alt={user.name}
                     className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
                   />
                   <span className="font-medium text-white group-hover:text-blue-200 transition-colors">
-                    {user.name.split(' ')[0]} {/* Tampilkan hanya nama depan */}
+                    {getFirstName(user)}
                   </span>
                   <i className={`ph ph-caret-down transition-transform duration-200 ${isProfileDropdownOpen ? 'rotate-180' : ''}`}></i>
                 </div>
@@ -111,14 +157,14 @@ export default function Navbar({ user }: NavbarProps) {
                 {isProfileDropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-xl py-2 z-50">
                     <Link
-                      href={`/profile/${user.id}`} // Sesuaikan dengan rute profil Anda
+                      href={`/profile/${user.id}`}
                       className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
                       My Profile
                     </Link>
                     <Link
-                      href="/settings" // Sesuaikan dengan rute pengaturan Anda
+                      href="/settings"
                       className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
@@ -126,8 +172,8 @@ export default function Navbar({ user }: NavbarProps) {
                     </Link>
                     <button
                       onClick={() => {
-                        handleLogout();
-                        setIsProfileDropdownOpen(false);
+                        handleLogout()
+                        setIsProfileDropdownOpen(false)
                       }}
                       className="block w-full text-left px-4 py-2 text-sm hover:bg-red-50 text-red-600"
                     >
@@ -153,29 +199,33 @@ export default function Navbar({ user }: NavbarProps) {
           <nav className="md:hidden mt-4 pb-2">
             <ul className="flex flex-col space-y-3">
               <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium py-2">
+                <Link href="/" className="hover:text-blue-200 flex items-center font-medium py-2">
                   <i className="ph ph-house mr-2"></i>
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium py-2">
+                <Link href="/explore" className="hover:text-blue-200 flex items-center font-medium py-2">
                   <i className="ph ph-compass mr-2"></i>
                   Explore
-                </a>
+                </Link>
               </li>
-              <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium py-2">
-                  <i className="ph ph-plus-circle mr-2"></i>
-                  Create Campaign
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-blue-200 flex items-center font-medium py-2">
-                  <i className="ph ph-user-circle mr-2"></i>
-                  Profile
-                </a>
-              </li>
+              {user && (
+                <li>
+                  <Link href="/campaign" className="hover:text-blue-200 flex items-center font-medium py-2">
+                    <i className="ph ph-plus-circle mr-2"></i>
+                    Create Campaign
+                  </Link>
+                </li>
+              )}
+              {user && (
+                <li>
+                  <Link href={`/profile/${user.id}`} className="hover:text-blue-200 flex items-center font-medium py-2">
+                    <i className="ph ph-user-circle mr-2"></i>
+                    Profile
+                  </Link>
+                </li>
+              )}
               <li className="pt-2 border-t border-blue-600">
                 <div className="relative">
                   <input
@@ -186,13 +236,15 @@ export default function Navbar({ user }: NavbarProps) {
                   <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
                 </div>
               </li>
-              <li className="pt-2">
-                <a href="/login">
-                  <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md w-full cursor-pointer">
-                    Sign In
-                  </button>
-                </a>
-              </li>
+              {!user && (
+                <li className="pt-2">
+                  <Link href="/login">
+                    <button className="bg-white text-blue-700 hover:bg-blue-50 px-4 py-2 rounded-lg font-medium transition-colors shadow-md w-full cursor-pointer">
+                      Sign In
+                    </button>
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
         )}
