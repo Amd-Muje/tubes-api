@@ -180,7 +180,7 @@ export default class CampaignsController {
     }
   }
   public async detail({ inertia, params }: HttpContext) {
-    return inertia.render('detail', { id: params.id })
+    return inertia.render('Campaigns/detail', { id: params.id })
   }
   public async create({ inertia, auth, response }: HttpContext) {
 

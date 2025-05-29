@@ -1,7 +1,8 @@
 'use client'
 
 import { Link, usePage } from '@inertiajs/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { apiService } from '~/service/utility'
 
 interface User {
   id: number
@@ -11,7 +12,7 @@ interface User {
   role: 'admin' | 'user'
 }
 
-interface PageProps {
+export interface PageProps {
   auth: {
     user: User | null
   }
@@ -20,17 +21,43 @@ interface PageProps {
 
 export default function Navbar() {
   const { auth = { user: null } } = usePage<PageProps>().props
-  const user = auth?.user
+  const [user, setUser] = useState<User | null>(auth?.user)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
 
+  useEffect(() => {
+    const validateUser = async () => {
+      try {
+        // Cek jika ada token
+        const token = localStorage.getItem('authToken')
+        if (!token) {
+          setUser(null)
+          return
+        }
+
+        // Get current user data
+        const userData = await apiService.getCurrentUser()
+        setUser(userData.user)
+      } catch (error) {
+        console.error('Error validating user:', error)
+        // Clear token jika invalid
+        localStorage.removeItem('authToken')
+        setUser(null)
+      }
+    }
+
+    validateUser()
+  }, [user])
+
+  // Update handleLogout
   const handleLogout = async () => {
-    // router.post('/logout', {}, {
-    //   onSuccess: () => {
-    //     router.visit('/login')
-    //   }
-    // })
-    console.log("logout")
+    try {
+      localStorage.removeItem('authToken')
+      setUser(null)
+      window.location.href = '/login'
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
   }
 
   const getUserAvatar = (user: User) => {

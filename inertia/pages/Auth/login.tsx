@@ -1,14 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Eye, EyeOff, Lock } from 'lucide-react'
+import { usePage } from '@inertiajs/react'
+import { PageProps } from '~/components/navbar'
 
 const Login = () => {
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  // const { auth } = usePage<PageProps>().props
+  // useEffect(() => {
+  //   if (!auth?.user) {
+  //     window.location.href = '/'
+  //   }
+  // }, [auth])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
