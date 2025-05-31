@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Transaction from '#models/transaction'
 import Donation from '#models/donation'
+import { Midtrans } from 'midtrans-client-typescript'
 
 export default class TransactionsController {
   // Get All Transactions
@@ -114,14 +115,56 @@ export default class TransactionsController {
       if (!donation) {
         return response.status(404).json({ message: 'Donation not found' })
       }
+
+      const order_id = `TRX-${Date.now()}`
+
       const transaction = await Transaction.create({
         donationId,
         paymentMethod,
-        order_id: `TRX-${Date.now()}`,
+        order_id,
         status: 'pending',
       })
 
-      return response.status(201).json({ message: 'Transaction created succesfully', transaction })
+      const snap = new Midtrans.Snap({
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_SERVER_KEY || 'null',
+        clientKey: process.env.MIDTRANS_CLIENT_KEY || 'null',
+      })
+
+      const donationUser = await donation.related('user').query().first()
+      const donationCampaign = await donation.related('campaign').query().first()
+
+      const midtransParams = {
+        transaction_details: {
+          order_id: order_id,
+          gross_amount: donation.amount,
+        },
+        credit_card:{
+          secure: true,
+        },
+        customer_details:{
+          first_name: donationUser?.name || 'Customer',
+          email: donationUser?.email || 'default@email.com',
+          phone: '08123456789', 
+        },
+      }
+
+      try {
+        const midtransResponse = await snap.createTransaction(midtransParams)
+
+        return response.status(201).json({
+          message: 'Transaction created succesfully', 
+          transaction,
+          snap_token: midtransResponse.token,
+          redirect_url: midtransResponse.redirect_url,
+        })
+      } catch (error) {
+        console.error('Midtrans error', error)
+        return response.status(500).json({
+          message: 'Transaction created, but failed to generate payment token',
+          transaction,
+        })
+      }
     } catch (error) {
       return response.status(500).json({ message: 'Internal server error' })
     }
