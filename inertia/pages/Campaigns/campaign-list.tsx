@@ -1,35 +1,35 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import CampaignCard from './campaign-card'
-import { apiService } from '~/service/utility'
+import CampaignCard, { Campaign } from './components/campaign-card'
 import { router } from '@inertiajs/react'
-// import { useRouter } from 'next/router'
 
 export default function CampaignList() {
-  const [campaigns, setCampaigns] = useState<any[]>([])
+  const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const data = await apiService.getCampaigns()
-        setCampaigns(data.campaigns)
+        const response = await fetch('/campaigns')
+        if (!response.ok) {
+          throw new Error('Failed to fetch campaigns')
+        }
+        const data = await response.json()
+        setCampaigns(Array.isArray(data.campaigns) ? data.campaigns : [])
       } catch (error: any) {
         setError(error.message)
         console.error('Error fetching campaigns:', error)
+      } finally {
+        setLoading(false)
       }
     }
 
-    setLoading(false)
     fetchCampaigns()
   }, [])
 
-  const handleCardClick = (id: string) => {
-    router.visit(`/detail/${id}`)
-  }
-
+  
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -46,9 +46,20 @@ export default function CampaignList() {
       </div>
     )
   }
-
-  if (!campaigns) return null
-
+  
+  if (!campaigns.length) {
+    return (
+      <div className="max-w-3xl mx-auto p-6 text-center">
+        <h2 className="text-xl text-gray-600 mb-2">No Campaigns Found</h2>
+        <p className="text-gray-700">There are no active campaigns at the moment.</p>
+      </div>
+    )
+  }
+  
+  const handleCardClick = (id: number) => {
+    router.visit(`/detail/${id}`)
+  }
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {campaigns.map((campaign) => (

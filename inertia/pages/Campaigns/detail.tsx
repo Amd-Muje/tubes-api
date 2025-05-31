@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart, Info, Share2, Users, Calendar } from 'lucide-react'
-import { apiService } from '~/service/utility'
+// import { apiService } from '~/service/utility'
 
 interface Campaign {
   id: string
@@ -29,24 +29,24 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
 
   useEffect(() => {
     if (!id) return
-
-    const fetchCampaign = async () => {
-      try {
-        setLoading(true)
-        const data = await apiService.getCampaignById(id)
-        setCampaign(data.campaign) // Perhatikan struktur response
-      } catch (err: any) {
-        setError(err.message)
-        if (err.message.includes('Unauthorized')) {
-          window.location.href = '/login'
+      const fetchCampaigns = async () => {
+        try {
+          const response = await fetch(`/campaign/${id}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch campaigns')
+          }
+          const data = await response.json()
+          setCampaign(Array.isArray(data.campaigns) ? data.campaigns : [])
+        } catch (error: any) {
+          setError(error.message)
+          console.error('Error fetching campaigns:', error)
+        } finally {
+          setLoading(false)
         }
-      } finally {
-        setLoading(false)
       }
-    }
-
-    fetchCampaign()
-  }, [id])
+  
+      fetchCampaigns()
+    }, [id])
 
   if (loading) {
     return (
@@ -159,10 +159,12 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           </div>
 
           <div className="flex gap-3">
+            <a href="/api/donation" className='flex gap-3'>
             <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors">
               <Heart size={18} className="mr-2" />
               Donate
             </button>
+            </a>
             <button className="w-12 h-12 border border-gray-200 rounded flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
               <Info size={18} />
             </button>

@@ -187,4 +187,40 @@ export default class DonationsController {
       return response.status(500).json({ message: 'Internal server error' })
     }
   }
+
+  public async donate({ request, response, auth, inertia }: HttpContext) {
+    // Cek autentikasi user
+    const user = auth.user
+    if (!user) {
+      return response.unauthorized({ message: 'Unauthorized' })
+    }
+
+    // Ambil data dari request
+    const { campaignId, amount, paymentMethod } = request.only(['campaignId', 'amount', 'paymentMethod'])
+
+    // Validasi campaign
+    const campaign = await Campaign.find(campaignId)
+    if (!campaign) {
+      return response.status(404).json({ message: 'Campaign not found' })
+    }
+
+    // Render halaman donasi dengan inertia
+    return inertia.render('donation-form', {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+      campaign: {
+        id: campaign.id,
+        title: campaign.title,
+        description: campaign.description,
+        collectedAmount: campaign.collectedAmount,
+        targetAmount: campaign.targetAmount,
+      },
+      amount,
+      paymentMethod,
+    })
+  }
+  
 }
