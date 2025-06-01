@@ -22,4 +22,7 @@ export default defineConfig({
       '~/': `${getDirname(import.meta.url)}/inertia/`,
     },
   },
+  server: {
+    allowedHosts: ['localhost', '127.0.0.1', 'f05f-180-247-45-165.ngrok-free.app'],
+  },
 })
