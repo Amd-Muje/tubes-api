@@ -70,7 +70,7 @@ export default class TransactionsController {
         return response.status(404).json({ message: 'Transaction not found' })
       }
       if (user?.role !== 'admin' && user?.id !== transaction.donation.userId) {
-        return response.json({ message: 'You not allowed to access this transaction' })
+        return response.status(403).json({ message: 'You not allowed to access this transaction' })
       }
       return response.json({
         transaction: {
@@ -114,13 +114,22 @@ export default class TransactionsController {
       if (!donation) {
         return response.status(404).json({ message: 'Donation not found' })
       }
+
+      const existingPending = await Transaction.query()
+        .where('donationId', donationId)
+        .where('status', 'pending')
+        .first()
+
+      if (existingPending) {
+        return response.status(400).json({ message: 'There is already a pending transaction for this donation' })
+      }
+
       const transaction = await Transaction.create({
         donationId,
         paymentMethod,
         order_id: `TRX-${Date.now()}`,
         status: 'pending',
       })
-
       return response.status(201).json({ message: 'Transaction created succesfully', transaction })
     } catch (error) {
       return response.status(500).json({ message: 'Internal server error' })
@@ -130,13 +139,13 @@ export default class TransactionsController {
   // Update Transaction
   public async update({ auth, request, response }: HttpContext) {
     try {
-      const { orderId, status } = request.only(['orderId', 'status'])
+      const { order_id, status } = request.only(['order_id', 'status'])
       const transaction = await Transaction.query()
-        .where('orderId', orderId)
+        .where('order_id', order_id)
         .preload('donation')
         .first()
       const user = auth.user
-      if (user) {
+      if (user && user.role !== 'admin') {
         return response
           .status(403)
           .json({ message: 'Forbidden: You are not allowed to update transactions' })
@@ -176,7 +185,7 @@ export default class TransactionsController {
 
       if (user?.role === 'admin') {
         await transaction.delete()
-        return response.status(203).json({ message: 'Transaction deleted successfully' })
+        return response.status(200).json({ message: 'Transaction deleted successfully' })
       }
 
       if (transaction.donation.userId === user?.id) {

@@ -4,6 +4,7 @@ import User from '#models/user'
 import Campaign from '#models/campaign'
 import Transaction from '#models/transaction'
 import db from '@adonisjs/lucid/services/db'
+import { Midtrans } from 'midtrans-client-typescript'
 
 export default class DonationsController {
   // Get All Donations
@@ -90,16 +91,21 @@ export default class DonationsController {
     const trx = await db.transaction()
     try {
       const data = request.only(['userId', 'campaignId', 'amount', 'paymentMethod'])
+
       const user = await User.find(data.userId)
+
       if (!user) {
         await trx.rollback()
         return response.status(404).json({ message: 'User not found' })
       }
+
       const campaign = await Campaign.find(data.campaignId)
+      
       if (!campaign) {
         await trx.rollback()
         return response.status(404).json({ message: 'Campaign not found' })
       }
+
       const donation = await Donation.create(
         {
           ...data,
@@ -113,21 +119,49 @@ export default class DonationsController {
       })
       await campaign.useTransaction(trx).save()
 
+      const order_id = `TRX-${Date.now()}`
       const transaction = await Transaction.create(
         {
           donationId: donation.id,
           paymentMethod: data.paymentMethod,
-          order_id: `TRX-${Date.now()}`,
+          order_id,
           status: 'pending',
         },
         { client: trx }
       )
 
+      const snap = new Midtrans.Snap({
+        isProduction: false,
+      serverKey: process.env.MIDTRANS_SERVER_KEY || '',
+      clientKey: process.env.MIDTRANS_CLIENT_KEY || '',
+    })
+
+    const midtransParams = {
+      transaction_details: {
+        order_id,
+        gross_amount: data.amount,
+      },
+      credit_card: {
+        secure: true,
+      },
+      customer_details: {
+        first_name: user.name,
+        email: user.email,
+        phone: '08123456789', // optional
+      },
+    }
+
+    // Buat transaksi Midtrans
+    const midtransResponse = await snap.createTransaction(midtransParams)
+
       await trx.commit()
 
       return response
         .status(201)
-        .json({ message: 'Donation Created Succesfully', donation, transaction })
+        .json({ message: 'Donation Created Succesfully', donation, transaction,
+          snap_token: midtransResponse.token,
+          redirect_url: midtransResponse.redirect_url,
+         })
     } catch (error) {
       await trx.rollback()
       console.log(error)
