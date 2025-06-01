@@ -1,50 +1,44 @@
+import Donation from '#models/donation'
+import Transaction from '#models/transaction'
 import type { HttpContext } from '@adonisjs/core/http'
-import { Midtrans } from 'midtrans-client-typescript'
 
 export default class PaymentController {
-  public async createSnapToken({ request, response }: HttpContext) {
-    const { order_id, gross_amount, customer_details } = request.body()
+  public async callback({ request, response }: HttpContext) {
+    const payload = request.body()
+    const orderId = payload.order_id
+    const transactionStatus = payload.transaction_status
 
-    // Initialize Snap client
-    const snap = new Midtrans.Snap({
-      isProduction: false, // Ganti ke true untuk production
-      serverKey: process.env.MIDTRANS_SERVER_KEY || 'null',
-      clientKey: process.env.MIDTRANS_CLIENT_KEY || 'null',
-    })
+    const transaction = await Transaction.findBy('order_id', orderId)
 
-    // Parameter transaksi
-    const parameters = {
-      transaction_details: {
-        order_id: order_id || 'order-id-' + new Date().getTime(),
-        gross_amount: 100000000,
-      },
-      credit_card: {
-        secure: true,
-      },
-      customer_details: customer_details || {
-        first_name: 'Customer',
-        last_name: 'Name',
-        email: 'b3A9o@example.com',
-        phone: '08123456789',
-      },
+    if (!transaction) {
+      return response.status(404).json({ message: 'Transaction not found' })
     }
 
-    try {
-      // Generate Snap token
-      const transaction = await snap.createTransaction(parameters)
+    // Update status transaksi dan donasi berdasarkan status dari Midtrans
+    if (transactionStatus === 'capture' || transactionStatus === 'settlement') {
+      transaction.status = 'success'
+      await transaction.save()
 
-      return response.json({
-        snap_token: transaction.token,
-        redirect_url: transaction.redirect_url,
-        order_id: order_id,
-        gross_amount: gross_amount,
-      })
-    } catch (error) {
-      console.error('Midtrans Error:', error)
-      return response.status(500).json({
-        error: 'PAYMENT_GATEWAY_ERROR',
-        message: error?.message || 'Failed to process payment',
-      })
+      const donation = await Donation.find(transaction.donationId)
+      if (donation) {
+        donation.paymentStatus = 'success'
+        await donation.save()
+      }
+    } else if (
+      transactionStatus === 'cancel' ||
+      transactionStatus === 'deny' ||
+      transactionStatus === 'expire'
+    ) {
+      transaction.status = 'failed'
+      await transaction.save()
+
+      const donation = await Donation.find(transaction.donationId)
+      if (donation) {
+        donation.paymentStatus = 'failed'
+        await donation.save()
+      }
     }
+
+    return response.status(200).json({ message: 'Callback handled' })
   }
 }
