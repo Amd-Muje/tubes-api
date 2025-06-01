@@ -4,9 +4,10 @@ import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PaymentController {
   public async callback({ request, response }: HttpContext) {
-    const payload = request.body()
-    const orderId = payload.order_id
-    const transactionStatus = payload.transaction_status
+    const data = request.body()
+    console.log('✅ Callback hit:', data)
+    const orderId = data.order_id
+    const transactionStatus = data.transaction_status
 
     const transaction = await Transaction.findBy('order_id', orderId)
 
