@@ -1,7 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Transaction from '#models/transaction'
 import Donation from '#models/donation'
-import { Midtrans } from 'midtrans-client-typescript'
 
 export default class TransactionsController {
   // Get All Transactions
@@ -71,7 +70,7 @@ export default class TransactionsController {
         return response.status(404).json({ message: 'Transaction not found' })
       }
       if (user?.role !== 'admin' && user?.id !== transaction.donation.userId) {
-        return response.json({ message: 'You not allowed to access this transaction' })
+        return response.status(403).json({ message: 'You not allowed to access this transaction' })
       }
       return response.json({
         transaction: {
@@ -116,55 +115,22 @@ export default class TransactionsController {
         return response.status(404).json({ message: 'Donation not found' })
       }
 
-      const order_id = `TRX-${Date.now()}`
+      const existingPending = await Transaction.query()
+        .where('donationId', donationId)
+        .where('status', 'pending')
+        .first()
+
+      if (existingPending) {
+        return response.status(400).json({ message: 'There is already a pending transaction for this donation' })
+      }
 
       const transaction = await Transaction.create({
         donationId,
         paymentMethod,
-        order_id,
+        order_id: `TRX-${Date.now()}`,
         status: 'pending',
       })
-
-      const snap = new Midtrans.Snap({
-        isProduction: false,
-        serverKey: process.env.MIDTRANS_SERVER_KEY || 'null',
-        clientKey: process.env.MIDTRANS_CLIENT_KEY || 'null',
-      })
-
-      const donationUser = await donation.related('user').query().first()
-      const donationCampaign = await donation.related('campaign').query().first()
-
-      const midtransParams = {
-        transaction_details: {
-          order_id: order_id,
-          gross_amount: donation.amount,
-        },
-        credit_card:{
-          secure: true,
-        },
-        customer_details:{
-          first_name: donationUser?.name || 'Customer',
-          email: donationUser?.email || 'default@email.com',
-          phone: '08123456789', 
-        },
-      }
-
-      try {
-        const midtransResponse = await snap.createTransaction(midtransParams)
-
-        return response.status(201).json({
-          message: 'Transaction created succesfully', 
-          transaction,
-          snap_token: midtransResponse.token,
-          redirect_url: midtransResponse.redirect_url,
-        })
-      } catch (error) {
-        console.error('Midtrans error', error)
-        return response.status(500).json({
-          message: 'Transaction created, but failed to generate payment token',
-          transaction,
-        })
-      }
+      return response.status(201).json({ message: 'Transaction created succesfully', transaction })
     } catch (error) {
       return response.status(500).json({ message: 'Internal server error' })
     }
@@ -173,13 +139,13 @@ export default class TransactionsController {
   // Update Transaction
   public async update({ auth, request, response }: HttpContext) {
     try {
-      const { orderId, status } = request.only(['orderId', 'status'])
+      const { order_id, status } = request.only(['order_id', 'status'])
       const transaction = await Transaction.query()
-        .where('orderId', orderId)
+        .where('order_id', order_id)
         .preload('donation')
         .first()
       const user = auth.user
-      if (user) {
+      if (user && user.role !== 'admin') {
         return response
           .status(403)
           .json({ message: 'Forbidden: You are not allowed to update transactions' })
@@ -219,7 +185,7 @@ export default class TransactionsController {
 
       if (user?.role === 'admin') {
         await transaction.delete()
-        return response.status(203).json({ message: 'Transaction deleted successfully' })
+        return response.status(200).json({ message: 'Transaction deleted successfully' })
       }
 
       if (transaction.donation.userId === user?.id) {
