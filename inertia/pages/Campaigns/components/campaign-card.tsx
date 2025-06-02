@@ -23,7 +23,9 @@ interface CampaignCardProps {
 }
 
 export default function CampaignCard({ campaign }: CampaignCardProps) {
-  const progress = calculateProgress(campaign.collected, campaign.target)
+  const collectedAmount = Number(campaign.collected)
+  const targetAmount = Number(campaign.target)
+  const progress =  targetAmount > 0 ? (collectedAmount /  targetAmount) * 100 : 0
   const days = daysRemaining(campaign.due) // Changed from endDate
   const [isHovered, setIsHovered] = useState(false)
   const isAdmin = localStorage.getItem('userRole') === 'admin'

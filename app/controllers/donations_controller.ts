@@ -111,8 +111,8 @@ export default class DonationsController {
         paymentStatus: 'pending',
       }, { client: trx })
 
-      campaign.collectedAmount = (campaign.collectedAmount ?? 0) + Number(data.amount)
-      await campaign.useTransaction(trx).save()
+      // campaign.collectedAmount = (campaign.collectedAmount ?? 0) + Number(data.amount)
+      // await campaign.useTransaction(trx).save()
 
       const transaction = await Transaction.create({
         donationId: donation.id,

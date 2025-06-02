@@ -92,6 +92,7 @@ export default function donationForm({user, campaign} : Props) {
           onSuccess: (result: any) => {
             setIsSuccess(true)
             console.log(result)
+            // localStorage.setItem('lastDonation', amount)
             return Response.redirect('/')
           },
           onPending: (result: any) => {

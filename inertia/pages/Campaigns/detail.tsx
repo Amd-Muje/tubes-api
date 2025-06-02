@@ -66,8 +66,13 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
 
   if (!campaign) return null
 
+  
+  const collectedAmount = Number(campaign.collected)
+  const targetAmount = Number(campaign.target)
+  
   const percentFunded =
-    campaign.target > 0 ? Math.round((campaign.collected / campaign.target) * 100) : 0
+    targetAmount > 0 ? (collectedAmount /  targetAmount) * 100 : 0
+  
 
   const hasEnded = new Date(campaign.due) < new Date()
   const daysLeft = !hasEnded
