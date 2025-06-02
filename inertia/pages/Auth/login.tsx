@@ -1,9 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Eye, EyeOff, Lock } from 'lucide-react'
-import { usePage } from '@inertiajs/react'
-import { PageProps } from '~/components/navbar'
 
 const Login = () => {
 
@@ -12,12 +10,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  // const { auth } = usePage<PageProps>().props
-  // useEffect(() => {
-  //   if (!auth?.user) {
-  //     window.location.href = '/'
-  //   }
-  // }, [auth])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,19 +30,20 @@ const Login = () => {
 
       const token = data.token.headers.authorization
       const userId = data.user.id
-
-      console.log("ini adalah token :", token)
-      console.log("in user id", userId)
-
-      localStorage.setItem('access_token', token)
-      localStorage.setItem('userId', userId)
-
+      const userRole = data.user.role
+      
+      
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')
       }
+      console.log("ini adalah token :", token)
+      console.log("in user id", userId)
 
+      localStorage.setItem('userId', userId)
+      
       // Save the token to localStorage or sessionStorage
       localStorage.setItem('access_token', token)
+      localStorage.setItem('userRole', userRole)
 
       // Redirect to home page after successful login
       window.location.href = '/'

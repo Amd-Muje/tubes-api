@@ -52,10 +52,12 @@ router.get('/google/callback', async ({ ally, auth, inertia }) => {
       }
     }
   })
-
+  
   // Redirect ke halaman perantara
   return inertia.render('Auth/authcallback', {
-    token: token.headers!.authorization
+    token: token.headers!.authorization,
+    id: user.id,
+    role: user.role,
   })
 })
 

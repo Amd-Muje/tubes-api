@@ -26,8 +26,9 @@ export default function Hero() {
           </p>
           <div className="flex flex-wrap gap-4">
             <a
-              // href="/api/campaign"
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full font-medium flex items-center transition-all shadow-lg hover:shadow-xl" onClick={()=>{
+              // href="campaign"
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full font-medium flex items-center transition-all shadow-lg hover:shadow-xl" 
+              onClick={()=>{
                 const token = localStorage.getItem('access_token')
                 if(!token){
                   window.location.href='/login'

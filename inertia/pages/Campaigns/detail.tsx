@@ -3,24 +3,22 @@
 import { useState, useEffect } from 'react'
 import { Heart, Info, Share2, Users, Calendar } from 'lucide-react'
 import { router } from '@inertiajs/react'
-// import { apiService } from '~/service/utility'
 
 interface Campaign {
   id: string
-  user?: {
-    name?: string
-    avatar?: string
-  }
+  owner: string
+  ownerId: string
   title: string
+  img_url: string
+  category: string
   description: string
-  targetAmount: number
-  collectedAmount: number
+  target: number
+  collected: number
   status: string
   startDate: string
-  endDate: string
-  imageUrl: string
-  category: string
-  backers: number
+  due: string
+  createdAt: string
+  updatedAt: string
 }
 
 const CampaignDetailPage = ({ id }: { id: string }) => {
@@ -30,24 +28,24 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
 
   useEffect(() => {
     if (!id) return
-      const fetchCampaigns = async () => {
-        try {
-          const response = await fetch(`/campaign/${id}`)
-          if (!response.ok) {
-            throw new Error('Failed to fetch campaigns')
-          }
-          const data = await response.json()
-          setCampaign(data.campaign)
-        } catch (error: any) {
-          setError(error.message)
-          console.error('Error fetching campaigns:', error)
-        } finally {
-          setLoading(false)
+    const fetchCampaign = async () => {
+      try {
+        const response = await fetch(`/campaign/${id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch campaign')
         }
+        const data = await response.json()
+        setCampaign(data.campaign)
+      } catch (error: any) {
+        setError(error.message)
+        console.error('Error fetching campaign:', error)
+      } finally {
+        setLoading(false)
       }
-  
-      fetchCampaigns()
-    }, [id])
+    }
+
+    fetchCampaign()
+  }, [id])
 
   if (loading) {
     return (
@@ -69,13 +67,12 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
   if (!campaign) return null
 
   const percentFunded =
-    campaign.targetAmount > 0
-      ? Math.round((campaign.collectedAmount / campaign.targetAmount) * 100)
-      : 0
-  const hasEnded = new Date(campaign.endDate) < new Date()
+    campaign.target > 0 ? Math.round((campaign.collected / campaign.target) * 100) : 0
+
+  const hasEnded = new Date(campaign.due) < new Date()
   const daysLeft = !hasEnded
     ? Math.ceil(
-        (new Date(campaign.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+        (new Date(campaign.due).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
       )
     : 0
 
@@ -85,7 +82,7 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
       <div className="max-w-3xl mx-auto bg-white rounded-xl overflow-hidden shadow-sm">
         <div className="relative h-72">
           <img
-            src={campaign.imageUrl || '/placeholder.svg'}
+            src={campaign.img_url || '/placeholder.svg'}
             alt={campaign.title || 'Campaign Image'}
             className="w-full h-full object-cover"
           />
@@ -95,21 +92,11 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           </div>
 
           <div className="absolute bottom-5 left-5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gray-300 border-2 border-white overflow-hidden">
-              {campaign.user?.avatar ? (
-                <img
-                  src={campaign.user.avatar}
-                  alt={campaign.user?.name || 'User'}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
-                  <span className="text-lg">U</span>
-                </div>
-              )}
+            <div className="w-10 h-10 rounded-full bg-gray-300 border-2 border-white overflow-hidden flex items-center justify-center text-white font-semibold">
+              {campaign.owner ? campaign.owner.charAt(0).toUpperCase() : 'U'}
             </div>
             <span className="text-white font-semibold text-shadow">
-              {campaign.user?.name || 'Anonymous User'}
+              {campaign.owner || 'Anonymous User'}
             </span>
           </div>
 
@@ -128,8 +115,8 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
 
           <div className="mb-6">
             <div className="flex justify-between mb-2">
-              <span className="font-semibold text-lg">${campaign.collectedAmount || 0}</span>
-              <span className="font-semibold text-lg">of ${campaign.targetAmount || 0}</span>
+              <span className="font-semibold text-lg">${campaign.collected || 0}</span>
+              <span className="font-semibold text-lg">of ${campaign.target || 0}</span>
             </div>
 
             <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -148,23 +135,22 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           <div className="flex items-center mb-6 text-gray-500 text-sm">
             <div className="flex items-center mr-6">
               <Users size={16} className="mr-2 text-blue-600" />
-              <span>{campaign.backers || 0} backers</span>
+              <span>Backers info not available</span>
             </div>
             <div className="flex items-center">
               <Calendar size={16} className="mr-2 text-blue-600" />
               <span>
-                Started:{' '}
-                {campaign.startDate ? new Date(campaign.startDate).toLocaleDateString() : 'N/A'}
+                Started: {campaign.startDate ? new Date(campaign.startDate).toLocaleDateString() : 'N/A'}
               </span>
             </div>
           </div>
 
           <div className="flex gap-3">
             <button
-            onClick={() => {
-              const token = localStorage.getItem('access_token')
-                if(!token){
-                  window.location.href='/login'
+              onClick={() => {
+                const token = localStorage.getItem('access_token')
+                if (!token) {
+                  window.location.href = '/login'
                   return
                 }
                 router.visit(`/api/donation?campaignId=${campaign.id}`, {
@@ -173,9 +159,9 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
                     Authorization: `${token}`,
                   },
                 })
-              }
-            } 
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors">
+              }}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors"
+            >
               <Heart size={18} className="mr-2" />
               Donate
             </button>

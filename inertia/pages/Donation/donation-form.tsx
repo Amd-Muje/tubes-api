@@ -1,6 +1,4 @@
 'use client'
-
-import { router } from '@inertiajs/react'
 import type React from 'react'
 
 import { useEffect, useState } from 'react'

@@ -3,7 +3,6 @@ import Campaign from '#models/campaign'
 import User from '#models/user'
 
 export default class CampaignsController {
-  //Get All Campaigns
   public async index({ response, auth }: HttpContext) {
     try {
       const user = auth.user
@@ -57,10 +56,11 @@ export default class CampaignsController {
     try {
       const user = auth.user
       const campaign = await Campaign.query().where('id', params.id).preload('user').first()
+      
       if (!campaign) {
         return response.status(404).json({ message: 'Campaign not found' })
       }
-      console.log(user?.role)
+
       if (user?.role !== 'admin') {
         return response.json({
           campaign: {
@@ -78,6 +78,7 @@ export default class CampaignsController {
           },
         })
       }
+
       return response.json({
         campaign: {
           id: campaign.id,
@@ -93,7 +94,7 @@ export default class CampaignsController {
           startDate: campaign.startDate,
           due: campaign.endDate,
           createdAt: campaign.createdAt,
-          updateAt: campaign.updatedAt,
+          updatedAt: campaign.updatedAt,
         },
       })
     } catch (error) {
@@ -106,29 +107,36 @@ export default class CampaignsController {
   public async store({ request, response }: HttpContext) {
     try {
       const data = request.only([
-        'userId',
+        'user_id', // Changed from userId
         'title',
         'img_url',
         'category',
         'description',
-        'targetAmount',
-        'startDate',
-        'endDate',
+        'target_amount', // Changed from targetAmount
+        'start_date', // Changed from startDate
+        'end_date', // Changed from endDate
       ])
-      const user = await User.find(data.userId)
+
+      const user = await User.find(data.user_id)
       if (!user) {
         return response.status(404).json({ message: 'User not found' })
       }
 
       const activeCampaign = await Campaign.query()
-        .where('userId', data.userId)
+        .where('user_id', data.user_id)
         .whereIn('status', ['pending', 'approved', 'rejected', 'completed'])
         .first()
+
       if (activeCampaign) {
         return response.status(400).json({ message: 'You already have an active campaign' })
       }
 
-      const campaign = await Campaign.create({ ...data, status: 'pending' })
+      const campaign = await Campaign.create({
+        ...data,
+        status: 'pending',
+        collectedAmount: 0, // Set default collected amount
+      })
+
       return response.status(201).json(campaign)
     } catch (error) {
       console.log(error)
@@ -192,13 +200,8 @@ export default class CampaignsController {
   public async detail({ inertia, params }: HttpContext) {
     return inertia.render('Campaigns/detail', { id: params.id })
   }
-  
+
   public async create({ inertia }: HttpContext) {
-
-    // if (!auth.user) {
-    //   return response.redirect("/login")
-    // }
-
-    return inertia.render('makecampaign')
+    return inertia.render('Campaigns/makecampaign')
   }
 }

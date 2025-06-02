@@ -30,25 +30,27 @@ class ApiService {
 
     return response
   }
-
-  // // Campaigns
-  // async getCampaigns() {
-  //   const response = await this.fetchWithAuth('/campaigns')
-  //   return response.json()
-  // }
-
-  // async getCampaignById(id: string) {
-  //   const response = await this.fetchWithAuth(`/campaign/${id}`)
-  //   return response.json()
-  // }
   async getCurrentUser() {
     const response = await this.fetchWithAuth('/me')
     return response.json()
   }
-  async getMakeCampaign() {
-    const response = await this.fetchWithAuth('/campaign')
+  async createCampaign(campaignData: {
+    user_id?: string,
+    title: string,
+    description: string,
+    target_amount: string,
+    start_date: string,
+    end_date: string,
+    category: string,
+    img_url: string
+  }) {
+    const response = await this.fetchWithAuth('/campaigns', {
+      method: 'POST',
+      body: JSON.stringify(campaignData),
+    })
     return response.json()
   }
+
 }
 
 export const apiService = new ApiService()
