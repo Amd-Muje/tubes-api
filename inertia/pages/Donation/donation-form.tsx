@@ -1,8 +1,9 @@
 'use client'
 
+import { router } from '@inertiajs/react'
 import type React from 'react'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 
 type User = {
@@ -26,6 +27,7 @@ type Props = {
 
 export default function donationForm({user, campaign} : Props) {
   const [amount, setAmount] = useState('')
+  const [succes, setIsSuccess] = useState(false)
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
 
   const presetAmounts = [25000, 50000, 100000, 250000, 500000, 1000000]
@@ -51,7 +53,7 @@ export default function donationForm({user, campaign} : Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const token = localStorage.getItem('authToken')
+    const token = localStorage.getItem('access_token')
     if (!token) {
       alert('Kamu harus login terlebih dahulu')
       window.location.href = '/login'
@@ -90,8 +92,9 @@ export default function donationForm({user, campaign} : Props) {
         // @ts-ignore
         window.snap.pay(result.snap_token, {
           onSuccess: (result: any) => {
-            alert('Donation successful!')
+            setIsSuccess(true)
             console.log(result)
+            return Response.redirect('/')
           },
           onPending: (result: any) => {
             alert('Waiting for payment...')
@@ -105,6 +108,7 @@ export default function donationForm({user, campaign} : Props) {
             alert('Payment popup closed')
           },
         })
+        return Response.redirect('/')
       } else {
         alert('Gagal mendapatkan Snap Token')
       }
@@ -113,6 +117,11 @@ export default function donationForm({user, campaign} : Props) {
       alert('Terjadi kesalahan heheheh')
     }
   }
+  useEffect(()=>{
+    if(succes){
+      window.location.href = '/'
+    }
+  },[succes])
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

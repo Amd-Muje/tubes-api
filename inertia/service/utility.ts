@@ -6,7 +6,7 @@ class ApiService {
   private baseUrl: string = 'http://localhost:3333/api'
 
   private getAuthToken(): string | null {
-    return localStorage.getItem('authToken')
+    return localStorage.getItem('access_token')
   }
 
   private async fetchWithAuth(endpoint: string, options: RequestConfig = {}): Promise<Response> {
@@ -43,6 +43,10 @@ class ApiService {
   // }
   async getCurrentUser() {
     const response = await this.fetchWithAuth('/me')
+    return response.json()
+  }
+  async getMakeCampaign() {
+    const response = await this.fetchWithAuth('/campaign')
     return response.json()
   }
 }

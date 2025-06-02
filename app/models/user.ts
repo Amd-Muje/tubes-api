@@ -21,7 +21,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare email: string
 
   @column()
-  declare img_url: string | null
+  declare avatarurl: string | null
 
   @column({ serializeAs: null })
   declare password: string
