@@ -192,11 +192,12 @@ export default class CampaignsController {
   public async detail({ inertia, params }: HttpContext) {
     return inertia.render('Campaigns/detail', { id: params.id })
   }
-  public async create({ inertia, auth, response }: HttpContext) {
+  
+  public async create({ inertia }: HttpContext) {
 
-    if (!auth.user) {
-      return response.redirect("/login")
-    }
+    // if (!auth.user) {
+    //   return response.redirect("/login")
+    // }
 
     return inertia.render('makecampaign')
   }

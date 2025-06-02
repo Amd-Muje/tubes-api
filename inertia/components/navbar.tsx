@@ -8,7 +8,7 @@ interface User {
   id: number
   name: string
   email: string
-  img_url?: string | null
+  avatarUrl?: string | null
   role: 'admin' | 'user'
 }
 
@@ -29,7 +29,7 @@ export default function Navbar() {
     const validateUser = async () => {
       try {
         // Cek jika ada token
-        const token = localStorage.getItem('authToken')
+        const token = localStorage.getItem('access_token')
         if (!token) {
           setUser(null)
           return
@@ -41,7 +41,7 @@ export default function Navbar() {
       } catch (error) {
         console.error('Error validating user:', error)
         // Clear token jika invalid
-        localStorage.removeItem('authToken')
+        localStorage.removeItem('access_token')
         setUser(null)
       }
     }
@@ -52,7 +52,7 @@ export default function Navbar() {
   // Update handleLogout
   const handleLogout = async () => {
     try {
-      localStorage.removeItem('authToken')
+      localStorage.removeItem('access_token')
       setUser(null)
       window.location.href = '/login'
     } catch (error) {
@@ -61,7 +61,7 @@ export default function Navbar() {
   }
 
   const getUserAvatar = (user: User) => {
-    return user.img_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`
+    return user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random&color=fff`
   }
 
   const getFirstName = (user: User) => {
@@ -86,18 +86,14 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <nav className="hidden md:block">
             <ul className="flex space-x-8">
+              {user&&(
               <li>
                 <Link href="/" className="hover:text-blue-200 flex items-center font-medium">
                   <i className="ph ph-house mr-1"></i>
                   Home
                 </Link>
               </li>
-              <li>
-                <Link href="/explore" className="hover:text-blue-200 flex items-center font-medium">
-                  <i className="ph ph-compass mr-1"></i>
-                  Explore
-                </Link>
-              </li>
+              )}
               {user && (
                 <li>
                   <Link href="/campaign" className="hover:text-blue-200 flex items-center font-medium">
