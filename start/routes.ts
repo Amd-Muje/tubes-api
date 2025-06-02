@@ -106,3 +106,59 @@ router.group(() => {
   .prefix('/api/')
   
 
+import { middleware } from './kernel.js' // Pastikan './kernel.js' benar, atau './kernel'
+
+// Dinamic import untuk controllers, AdonisJS style
+const UsersController = () => import('#controllers/users_controller')
+const CampaignsController = () => import('#controllers/campaigns_controller')
+const DonationsController = () => import('#controllers/donations_controller')
+const TransactionsController = () => import('#controllers/transactions_controller')
+
+// Auth routes API (yang dipanggil dari frontend via fetch)
+router.post('/api/users/register', [UsersController, 'store']) // Asumsi endpoint register
+router.post('/api/users/login', [UsersController, 'login'])
+
+router.get('/profile', async ({ inertia }) => {
+  return inertia.render('profile')
+})
+
+// API routes (diproteksi dengan middleware auth guard 'api')
+router
+  .group(() => {
+    router.get('/users/profile', [UsersController, 'profile'])
+    router.put('/users/profile', [UsersController, 'update'])
+
+    router.get('/campaigns', [CampaignsController, 'index'])
+    router.post('/campaigns', [CampaignsController, 'store'])
+    router.get('/campaigns/:id', [CampaignsController, 'show']) // Mengubah dari /campaign/:id
+    router.put('/campaigns/:id', [CampaignsController, 'updateStatus'])
+    router.delete('/campaigns/:id', [CampaignsController, 'destroy'])
+
+    // Admin routes for users
+    router.get('/users', [UsersController, 'index'])
+    router.get('/users/:id', [UsersController, 'show'])
+    router.put('/users/:id', [UsersController, 'update']) // Ini mungkin perlu logika berbeda dari update profile
+    router.delete('/users/:id', [UsersController, 'destroy'])
+
+    router.get('/donations', [DonationsController, 'index'])
+    router.get('/donations/:id', [DonationsController, 'show'])
+    router.post('/donations', [DonationsController, 'store'])
+    router.put('/donations/:id', [DonationsController, 'update'])
+    router.delete('/donations/:id', [DonationsController, 'destroy'])
+
+    router.get('/transactions', [TransactionsController, 'index'])
+    router.get('/transactions/:id', [TransactionsController, 'show'])
+    router.post('/transactions', [TransactionsController, 'store'])
+    router.put('/transactions/:id', [TransactionsController, 'update'])
+    router.delete('/transactions/:id', [TransactionsController, 'destroy'])
+  })
+  .prefix('/api')
+  .middleware(middleware.auth({ guards: ['api'] })) // Melindungi semua rute API ini
+
+// Inertia routes (umumnya tidak diproteksi di sini jika komponennya melakukan fetch ke API yang sudah diproteksi)
+router.on('/').renderInertia('home')
+router.get('/detail/:id', async ({ inertia, params }) => {
+  return inertia.render('detail', { campaignId: params.id })
+})
+router.on('/login').renderInertia('login')
+router.on('/register').renderInertia('register')

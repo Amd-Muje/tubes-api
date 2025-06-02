@@ -74,7 +74,8 @@ export default function Navbar() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <div className="bg-white text-blue-600 p-2 rounded-lg shadow-md mr-3">
-              <i className="ph ph-hand-heart text-2xl"></i>
+              {/* Ganti dengan SVG atau komponen ikon jika 'ph' tidak terdefinisi */}
+              <span role="img" aria-label="logo" className="text-2xl">💖</span>
             </div>
             <Link href="/">
               <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
@@ -120,7 +121,7 @@ export default function Navbar() {
                 placeholder="Search campaigns..."
                 className="bg-blue-600/50 text-white placeholder-blue-300 border border-blue-500 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 w-48 transition-all focus:w-64"
               />
-              <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
+              {/* <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i> */}
             </div>
 
             {/* Conditional rendering for Login/Sign In vs Profile */}
@@ -186,7 +187,8 @@ export default function Navbar() {
             className="md:hidden text-white focus:outline-none"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <i className={`ph ${isMenuOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i>
+            {/* <i className={`ph ${isMenuOpen ? 'ph-x' : 'ph-list'} text-2xl`}></i> */}
+            {isMenuOpen ? '✕' : '☰'}
           </button>
         </div>
 
@@ -229,7 +231,7 @@ export default function Navbar() {
                     placeholder="Search campaigns..."
                     className="bg-blue-600/50 text-white placeholder-blue-300 border border-blue-500 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
                   />
-                  <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
+                  {/* <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i> */}
                 </div>
               </li>
               {!user && (

@@ -25,9 +25,11 @@ const Login = () => {
     setError('')
 
     try {
-      const response = await fetch('/users/login', {
+      //  URL nya jadi /api/users/login
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
@@ -36,25 +38,16 @@ const Login = () => {
 
       const data = await response.json()
 
-      const token = data.token.headers.authorization
-      const userId = data.user.id
-
-      console.log("ini adalah token :", token)
-      console.log("in user id", userId)
-
-      localStorage.setItem('access_token', token)
-      localStorage.setItem('userId', userId)
-
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')
       }
 
-      // Save the token to localStorage or sessionStorage
-      localStorage.setItem('access_token', token)
+      localStorage.setItem('authToken', data.token)
+      console.log('Login successful:', data) // Untuk debugging
 
-      // Redirect to home page after successful login
       window.location.href = '/'
     } catch (err) {
+      console.error('Login error:', err) // Untuk debugging
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
@@ -126,11 +119,10 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 rounded-md font-medium text-white transition-colors ${
-                loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
-              }`}
+              className={`w-full py-3 rounded-md font-medium text-white transition-colors ${loading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800'
+                }`}
             >
               {loading ? 'Logging in...' : 'Log In'}
             </button>
