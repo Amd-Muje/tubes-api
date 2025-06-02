@@ -37,10 +37,13 @@ const Login = () => {
       const data = await response.json()
 
       const token = data.token.headers.authorization
+      const userId = data.user.id
 
-      console.log(token)
+      console.log("ini adalah token :", token)
+      console.log("in user id", userId)
 
       localStorage.setItem('authToken', token)
+      localStorage.setItem('userId', userId)
 
       if (!response.ok) {
         throw new Error(data.message || 'Login failed')

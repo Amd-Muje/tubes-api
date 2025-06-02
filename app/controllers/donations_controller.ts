@@ -93,78 +93,71 @@ export default class DonationsController {
       const data = request.only(['userId', 'campaignId', 'amount', 'paymentMethod'])
 
       const user = await User.find(data.userId)
-
       if (!user) {
         await trx.rollback()
         return response.status(404).json({ message: 'User not found' })
       }
 
       const campaign = await Campaign.find(data.campaignId)
-      
       if (!campaign) {
         await trx.rollback()
         return response.status(404).json({ message: 'Campaign not found' })
       }
 
-      const donation = await Donation.create(
-        {
-          ...data,
-          paymentStatus: 'pending',
-        },
-        { client: trx }
-      )
+      const order_id = `TRX-${Date.now()}`
 
-      campaign.merge({
-        collectedAmount: Number(campaign.collectedAmount ?? 0) + Number(data.amount),
-      })
+      const donation = await Donation.create({
+        ...data,
+        paymentStatus: 'pending',
+      }, { client: trx })
+
+      campaign.collectedAmount = (campaign.collectedAmount ?? 0) + Number(data.amount)
       await campaign.useTransaction(trx).save()
 
-      const order_id = `TRX-${Date.now()}`
-      const transaction = await Transaction.create(
-        {
-          donationId: donation.id,
-          paymentMethod: data.paymentMethod,
-          order_id,
-          status: 'pending',
-        },
-        { client: trx }
-      )
+      const transaction = await Transaction.create({
+        donationId: donation.id,
+        paymentMethod: data.paymentMethod,
+        order_id,
+        status: 'pending',
+      }, { client: trx })
 
+      // Buat transaksi Midtrans setelah simpan semua data di DB, tapi sebelum commit
       const snap = new Midtrans.Snap({
         isProduction: false,
-      serverKey: process.env.MIDTRANS_SERVER_KEY || '',
-      clientKey: process.env.MIDTRANS_CLIENT_KEY || '',
-    })
+        serverKey: process.env.MIDTRANS_SERVER_KEY || '',
+        clientKey: process.env.MIDTRANS_CLIENT_KEY || '',
+      })
 
-    const midtransParams = {
-      transaction_details: {
-        order_id,
-        gross_amount: data.amount,
-      },
-      credit_card: {
-        secure: true,
-      },
-      customer_details: {
-        first_name: user.name,
-        email: user.email,
-        phone: '08123456789', // optional
-      },
-    }
+      const midtransParams = {
+        transaction_details: {
+          order_id,
+          gross_amount: data.amount,
+        },
+        credit_card: {
+          secure: true,
+        },
+        customer_details: {
+          first_name: user.name,
+          email: user.email,
+          phone: '08123456789',
+        },
+      }
 
-    // Buat transaksi Midtrans
-    const midtransResponse = await snap.createTransaction(midtransParams)
+      const midtransResponse = await snap.createTransaction(midtransParams)
 
+      // Commit transaksi DB setelah berhasil panggil Midtrans
       await trx.commit()
 
-      return response
-        .status(201)
-        .json({ message: 'Donation Created Succesfully', donation, transaction,
-          snap_token: midtransResponse.token,
-          redirect_url: midtransResponse.redirect_url,
-         })
+      return response.status(201).json({
+        message: 'Donation Created Successfully',
+        donation,
+        transaction,
+        snap_token: midtransResponse.token,
+        redirect_url: midtransResponse.redirect_url,
+      })
     } catch (error) {
       await trx.rollback()
-      console.log(error)
+      console.error(error)
       return response.status(500).json({ message: 'Internal server error' })
     }
   }
@@ -235,11 +228,13 @@ export default class DonationsController {
     // Validasi campaign
     const campaign = await Campaign.find(campaignId)
     if (!campaign) {
-      return response.status(404).json({ message: 'Campaign not found' })
+      return inertia.render('errors/not_found', {
+        message: 'Campaign not found'
+      })
     }
 
     // Render halaman donasi dengan inertia
-    return inertia.render('donation-form', {
+    return inertia.render('Donation/donation-form', {
       user: {
         id: user.id,
         name: user.name,

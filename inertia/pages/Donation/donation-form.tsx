@@ -4,7 +4,27 @@ import type React from 'react'
 
 import { useState } from 'react'
 
-export default function donationForm() {
+
+type User = {
+  id: number
+  nama: string
+  emailemail: string
+}
+
+type Campaign = {
+  id: number
+  title: string
+  description: string
+  collectedAmount: number
+  targetAmount: number
+}
+
+type Props = {
+  user: User
+  campaign: Campaign
+}
+
+export default function donationForm({user, campaign} : Props) {
   const [amount, setAmount] = useState('')
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null)
 
@@ -28,9 +48,70 @@ export default function donationForm() {
     }).format(value)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Donation amount:', amount)
+
+    const token = localStorage.getItem('authToken')
+    if (!token) {
+      alert('Kamu harus login terlebih dahulu')
+      window.location.href = '/login'
+      return
+    }
+
+    if (!user?.id || !campaign?.id || !amount) {
+      alert('Data tidak lengkap. Pastikan user, campaign, dan jumlah donasi tersedia.')
+      return
+    }
+
+    try {
+      const res = await fetch('/api/donations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token,
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          campaignId: campaign.id,
+          amount: parseInt(amount),
+          paymentMethod: 'midtrans', // atau sesuai pilihan
+        }),
+      })
+
+      const text = await res.text() // safe parsing
+      let result
+      try {
+        result = JSON.parse(text)
+      } catch {
+        throw new Error(text)
+      }
+
+      if (result.snap_token) {
+        // @ts-ignore
+        window.snap.pay(result.snap_token, {
+          onSuccess: (result: any) => {
+            alert('Donation successful!')
+            console.log(result)
+          },
+          onPending: (result: any) => {
+            alert('Waiting for payment...')
+            console.log(result)
+          },
+          onError: (error: any) => {
+            alert('Payment failed')
+            console.error(error)
+          },
+          onClose: () => {
+            alert('Payment popup closed')
+          },
+        })
+      } else {
+        alert('Gagal mendapatkan Snap Token')
+      }
+    } catch (error) {
+      console.error('Error creating donation:', error)
+      alert('Terjadi kesalahan heheheh')
+    }
   }
 
   return (
