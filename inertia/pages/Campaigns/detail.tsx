@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart, Info, Share2, Users, Calendar } from 'lucide-react'
+import { router } from '@inertiajs/react'
 // import { apiService } from '~/service/utility'
 
 interface Campaign {
@@ -36,7 +37,7 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
             throw new Error('Failed to fetch campaigns')
           }
           const data = await response.json()
-          setCampaign(Array.isArray(data.campaigns) ? data.campaigns : [])
+          setCampaign(data.campaign)
         } catch (error: any) {
           setError(error.message)
           console.error('Error fetching campaigns:', error)
@@ -159,12 +160,25 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           </div>
 
           <div className="flex gap-3">
-            <a href="/api/donation" className='flex gap-3'>
-            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors">
+            <button
+            onClick={() => {
+              const token = localStorage.getItem('authToken')
+                if(!token){
+                  window.location.href='/login'
+                  return
+                }
+                router.visit(`/api/donation?campaignId=${campaign.id}`, {
+                  method: 'get',
+                  headers: {
+                    Authorization: `${token}`,
+                  },
+                })
+              }
+            } 
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors">
               <Heart size={18} className="mr-2" />
               Donate
             </button>
-            </a>
             <button className="w-12 h-12 border border-gray-200 rounded flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors">
               <Info size={18} />
             </button>
