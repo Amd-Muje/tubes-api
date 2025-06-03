@@ -66,12 +66,14 @@ router.get('/google/callback', async ({ ally, auth, inertia }) => {
 router.get('/detail/:id', [CampaignsController, 'detail'])
 router.on('/login').renderInertia('Auth/login').middleware(middleware.iner())
 router.on('/register').renderInertia('Auth/register')
+router.on('/profile').renderInertia('Profile/profile')
 router.post('/users', [UsersController, 'store']).middleware(middleware.iner())
 router.post('/users/login', [UsersController, 'login']).middleware(middleware.iner())
 router.get('/campaigns', [CampaignsController, 'index'])
 router.get('/campaign/:id', [CampaignsController, 'show'])
 router.post('/api/payment/callback' , [PaymentController, 'callback'])
 router.get('/campaign', [CampaignsController, 'create'])
+
 
 router.group(() => {
   router.get('/donation', [DonationsController, 'donate'])
