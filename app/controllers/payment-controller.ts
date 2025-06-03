@@ -1,11 +1,16 @@
 import Campaign from '#models/campaign'
+import Campaign from '#models/campaign'
 import Donation from '#models/donation'
 import Transaction from '#models/transaction'
 import type { HttpContext } from '@adonisjs/core/http'
+import BlocksController from './blocks_controller.js'
 
 export default class PaymentController {
   public async callback({ request, response }: HttpContext) {
     const data = request.body()
+    
+    try {
+      console.log('try callback hit:', data)
     
     try {
       console.log('try callback hit:', data)
@@ -16,11 +21,15 @@ export default class PaymentController {
       if (!transaction) {
         console.warn('Transaction not found:', orderId)
         return response.status(404).json({ message: 'Transaction not found' })
+        return response.status(404).json({ message: 'Transaction not found' })
       }
       
       if (transactionStatus === 'capture' || transactionStatus === 'settlement') {
         transaction.status = 'success'
         await transaction.save()
+
+        const blocksController = new BlocksController()
+        await blocksController.createBlockForTransaction(transaction)
         
         const donation = await Donation.find(transaction.donationId)
         if (donation) {
@@ -48,6 +57,7 @@ export default class PaymentController {
         transaction.status = 'failed'
         await transaction.save()
 
+
         const donation = await Donation.find(transaction.donationId)
         if (donation) {
           donation.paymentStatus = 'failed'
@@ -55,7 +65,11 @@ export default class PaymentController {
         }
       }
 
+
       return response.status(200).json({ message: 'Callback handled' })
+    } catch (error) {
+      console.error('Callback error:', error)
+      return response.status(500).json({ message: 'Callback error handled' })
     } catch (error) {
       console.error('Callback error:', error)
       return response.status(500).json({ message: 'Callback error handled' })

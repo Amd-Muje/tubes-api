@@ -18,8 +18,8 @@ export default class CampaignsController {
             img_url: campaign.img_url,
             category: campaign.category,
             description: campaign.description,
-            target: campaign.targetAmount,
-            collected: campaign.collectedAmount,
+            target: campaign.target_amount,
+            collected: campaign.collected_amount,
             status: campaign.status,
             startDate: campaign.startDate,
             due: campaign.endDate,
@@ -36,8 +36,8 @@ export default class CampaignsController {
           img_url: campaign.img_url,
           category: campaign.category,
           description: campaign.description,
-          target: campaign.targetAmount,
-          collected: campaign.collectedAmount,
+          target: campaign.target_amount,
+          collected: campaign.collected_amount,
           status: campaign.status,
           startDate: campaign.startDate,
           due: campaign.endDate,
@@ -70,8 +70,8 @@ export default class CampaignsController {
             img_url: campaign.img_url,
             category: campaign.category,
             description: campaign.description,
-            target: campaign.targetAmount,
-            collected: campaign.collectedAmount,
+            target: campaign.target_amount,
+            collected: campaign.collected_amount,
             status: campaign.status,
             startDate: campaign.startDate,
             due: campaign.endDate,
@@ -88,8 +88,8 @@ export default class CampaignsController {
           img_url: campaign.img_url,
           category: campaign.category,
           description: campaign.description,
-          target: campaign.targetAmount,
-          collected: campaign.collectedAmount,
+          target: campaign.target_amount,
+          collected: campaign.collected_amount,
           status: campaign.status,
           startDate: campaign.startDate,
           due: campaign.endDate,
@@ -112,9 +112,9 @@ export default class CampaignsController {
         'img_url',
         'category',
         'description',
-        'target_amount', // Changed from targetAmount
-        'start_date', // Changed from startDate
-        'end_date', // Changed from endDate
+        'target_amount',
+        'startDate',
+        'endDate',
       ])
 
       const user = await User.find(data.user_id)
