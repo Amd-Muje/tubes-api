@@ -1,6 +1,6 @@
 'use client'
 
-import { Link, usePage } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
 import { useEffect, useState } from 'react'
 import { apiService } from '~/service/utility'
 
@@ -117,7 +117,7 @@ export default function Navbar() {
   const handleSearchResultClick = (campaignId: number) => {
     setSearchQuery('')
     setShowSearchResults(false)
-    window.location.href = `/detail/${campaignId}`
+    router.visit(`/detail/${campaignId}`)
   }
 
   const handleSearchInputBlur = () => {
@@ -161,7 +161,7 @@ export default function Navbar() {
               )}
               {user && (
                 <li>
-                  <Link href={`/profile/${user.id}`} className="hover:text-blue-200 flex items-center font-medium">
+                  <Link href={`/profile`} className="hover:text-blue-200 flex items-center font-medium">
                     <i className="ph ph-user-circle mr-1"></i>
                     Profile
                   </Link>
@@ -259,7 +259,7 @@ export default function Navbar() {
                 {isProfileDropdownOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-xl py-2 z-50">
                     <Link
-                      href={`/profile/${user.id}`}
+                      href={`/profile`}
                       className="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700"
                       onClick={() => setIsProfileDropdownOpen(false)}
                     >
