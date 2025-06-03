@@ -111,9 +111,6 @@ export default class DonationsController {
         paymentStatus: 'pending',
       }, { client: trx })
 
-      // campaign.collectedAmount = (campaign.collectedAmount ?? 0) + Number(data.amount)
-      // await campaign.useTransaction(trx).save()
-
       const transaction = await Transaction.create({
         donationId: donation.id,
         paymentMethod: data.paymentMethod,
@@ -121,6 +118,7 @@ export default class DonationsController {
         status: 'pending',
       }, { client: trx })
 
+      await trx.commit()
       // Buat transaksi Midtrans setelah simpan semua data di DB, tapi sebelum commit
       const snap = new Midtrans.Snap({
         isProduction: false,
@@ -144,9 +142,6 @@ export default class DonationsController {
       }
 
       const midtransResponse = await snap.createTransaction(midtransParams)
-
-      // Commit transaksi DB setelah berhasil panggil Midtrans
-      await trx.commit()
 
       return response.status(201).json({
         message: 'Donation Created Successfully',
