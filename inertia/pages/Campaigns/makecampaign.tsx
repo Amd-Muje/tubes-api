@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import DefaultLayout from '~/layout/default-layout'
+import { apiService } from '~/service/utility'
 
 export default function MakeCampaign() {
   const [formData, setFormData] = useState({
@@ -16,9 +17,28 @@ export default function MakeCampaign() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Implementasi logic submit form
+    try {
+      const user = localStorage.getItem('userId')
+      const response = await apiService.createCampaign({
+        userId: user!,
+        title: formData.title,
+        description: formData.description,
+        target_amount: formData.targetAmount,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        category: formData.category,
+        img_url: formData.imageUrl
+      })
+  
+      // Handle successful campaign creation
+      window.location.href = '/' // Redirect to campaigns list
+      return response
+    } catch (error) {
+      // Handle error
+      console.error('Failed to create campaign:', error)
+      alert('Failed to create campaign. Please try again.')
+    }
   }
-
   return (
     <DefaultLayout>
       <div className="container mx-auto px-4 py-8">

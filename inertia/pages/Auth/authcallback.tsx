@@ -3,12 +3,14 @@ import { usePage } from '@inertiajs/react'
 import { PageProps } from '~/components/navbar'
 
 export default function AuthCallback() {
-  const { token } = usePage<PageProps>().props
+  const { token, id , role } = usePage<PageProps>().props
 
   useEffect(() => {
     // Simpan token
     if (token) {
       localStorage.setItem('access_token', token)
+      localStorage.setItem('userId', id)
+      localStorage.setItem('userRole', role)
       
       // Redirect ke home setelah token tersimpan
       window.location.href = '/'

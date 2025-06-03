@@ -26,8 +26,9 @@ export default function Hero() {
           </p>
           <div className="flex flex-wrap gap-4">
             <a
-              // href="/api/campaign"
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full font-medium flex items-center transition-all shadow-lg hover:shadow-xl" onClick={()=>{
+              // href="campaign"
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full font-medium flex items-center transition-all shadow-lg hover:shadow-xl" 
+              onClick={()=>{
                 const token = localStorage.getItem('access_token')
                 if(!token){
                   window.location.href='/login'
@@ -61,7 +62,7 @@ export default function Hero() {
                 <i className="ph ph-wallet text-3xl text-blue-200"></i>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-bold">$2.5M</div>
+                <div className="text-2xl md:text-3xl font-bold">RP2.5M</div>
                 <div className="text-blue-200 text-sm">Total Funds Raised</div>
               </div>
             </div>

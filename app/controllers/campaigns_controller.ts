@@ -19,8 +19,8 @@ export default class CampaignsController {
             img_url: campaign.img_url,
             category: campaign.category,
             description: campaign.description,
-            target: campaign.target_amount,
-            collected: campaign.collected_amount,
+            target: campaign.targetAmount,
+            collected: campaign.collectedAmount,
             status: campaign.status,
             startDate: campaign.startDate,
             due: campaign.endDate,
@@ -37,8 +37,8 @@ export default class CampaignsController {
           img_url: campaign.img_url,
           category: campaign.category,
           description: campaign.description,
-          target: campaign.target_amount,
-          collected: campaign.collected_amount,
+          target: campaign.targetAmount,
+          collected: campaign.collectedAmount,
           status: campaign.status,
           startDate: campaign.startDate,
           due: campaign.endDate,
@@ -70,8 +70,8 @@ export default class CampaignsController {
             img_url: campaign.img_url,
             category: campaign.category,
             description: campaign.description,
-            target: campaign.target_amount,
-            collected: campaign.collected_amount,
+            target: campaign.targetAmount,
+            collected: campaign.collectedAmount,
             status: campaign.status,
             startDate: campaign.startDate,
             due: campaign.endDate,
@@ -87,8 +87,8 @@ export default class CampaignsController {
           img_url: campaign.img_url,
           category: campaign.category,
           description: campaign.description,
-          target: campaign.target_amount,
-          collected: campaign.collected_amount,
+          target: campaign.targetAmount,
+          collected: campaign.collectedAmount,
           status: campaign.status,
           startDate: campaign.startDate,
           due: campaign.endDate,
@@ -192,13 +192,7 @@ export default class CampaignsController {
   public async detail({ inertia, params }: HttpContext) {
     return inertia.render('Campaigns/detail', { id: params.id })
   }
-  
   public async create({ inertia }: HttpContext) {
-
-    // if (!auth.user) {
-    //   return response.redirect("/login")
-    // }
-
-    return inertia.render('makecampaign')
+    return inertia.render('Campaigns/makecampaign')
   }
 }

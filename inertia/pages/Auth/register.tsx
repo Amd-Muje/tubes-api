@@ -49,8 +49,8 @@ const Register = () => {
 
   return (
     <div className="h-screen flex justify-center items-center p-5">
-      <div className="p-10 bg-white rounded-lg shadow-md flex items-center gap-4 w-full h-full">
-        <div className="w-[35%]">
+      <div className="bg-white rounded-lg shadow-md flex items-center gap-4 w-full h-full">
+        <div className="w-[35%] p-10">
           <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">Create your account</h1>
           <p className="text-center text-gray-600 mb-6">Please enter your details to get started</p>
 
@@ -173,7 +173,7 @@ const Register = () => {
             </div>
           </form>
         </div>
-        <div className="bg-[url('/img/pictside.jpg')] bg-cover bg-center w-[65%] h-full rounded-lg"></div>
+        <div className="bg-[url('/img/regisimg.webp')] bg-cover bg-center w-[65%] h-full rounded-lg"></div>
       </div>
     </div>
   )

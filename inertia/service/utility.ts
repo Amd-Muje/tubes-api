@@ -30,23 +30,36 @@ class ApiService {
 
     return response
   }
-
-  // // Campaigns
-  // async getCampaigns() {
-  //   const response = await this.fetchWithAuth('/campaigns')
-  //   return response.json()
-  // }
-
-  // async getCampaignById(id: string) {
-  //   const response = await this.fetchWithAuth(`/campaign/${id}`)
-  //   return response.json()
-  // }
   async getCurrentUser() {
     const response = await this.fetchWithAuth('/me')
     return response.json()
   }
-  async getMakeCampaign() {
-    const response = await this.fetchWithAuth('/campaign')
+  async createCampaign(campaignData: {
+    userId?: string,
+    title: string,
+    description: string,
+    target_amount: string,
+    startDate: string,
+    endDate: string,
+    category: string,
+    img_url: string
+  }) {
+    const response = await this.fetchWithAuth('/campaigns', {
+      method: 'POST',
+      body: JSON.stringify(campaignData),
+    })
+    return response.json()
+  }
+  async createDonation(donationData: {
+    userId: number,
+    campaignId: number,
+    amount: number,
+    paymentMethod: string
+  }) {
+    const response = await this.fetchWithAuth('/donations', {
+      method: 'POST',
+      body: JSON.stringify(donationData),
+    })
     return response.json()
   }
 }

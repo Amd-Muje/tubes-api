@@ -1,9 +1,8 @@
 'use client'
-
-import { router } from '@inertiajs/react'
 import type React from 'react'
 
 import { useEffect, useState } from 'react'
+import { apiService } from '~/service/utility'
 
 
 type User = {
@@ -50,7 +49,7 @@ export default function donationForm({user, campaign} : Props) {
     }).format(value)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     const token = localStorage.getItem('access_token')
@@ -66,27 +65,12 @@ export default function donationForm({user, campaign} : Props) {
     }
 
     try {
-      const res = await fetch('/api/donations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token,
-        },
-        body: JSON.stringify({
-          userId: user.id,
-          campaignId: campaign.id,
-          amount: parseInt(amount),
-          paymentMethod: 'midtrans', // atau sesuai pilihan
-        }),
+      const result = await apiService.createDonation({
+        userId: user.id,
+        campaignId: campaign.id,
+        amount: parseInt(amount),
+        paymentMethod: 'midtrans',
       })
-
-      const text = await res.text() // safe parsing
-      let result
-      try {
-        result = JSON.parse(text)
-      } catch {
-        throw new Error(text)
-      }
 
       if (result.snap_token) {
         // @ts-ignore
@@ -117,6 +101,7 @@ export default function donationForm({user, campaign} : Props) {
       alert('Terjadi kesalahan heheheh')
     }
   }
+
   useEffect(()=>{
     if(succes){
       window.location.href = '/'
@@ -124,24 +109,23 @@ export default function donationForm({user, campaign} : Props) {
   },[succes])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+    <div className="h-screen flex items-center p-4 w-screen justify-center overflow-x-hidden">
+      <div className="w-1/2 max-w-md bg-white rounded-2xl shadow-lg p-8 border">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Support This Project</h1>
+          <h1 className="text-2xl font-bold text-blue-700 mb-2">Support This Project</h1>
           <p className="text-gray-600">Choose your contribution amount</p>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-2">
           {/* Preset Amounts */}
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             <label className="block text-sm font-medium text-gray-700">Quick Select</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3 w-fit">
               {presetAmounts.map((preset) => (
                 <button
                   key={preset}
                   type="button"
                   onClick={() => handlePresetClick(preset)}
-                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                  className={`p-3 rounded-lg border-2 text-sm font-medium transition-all w-full${
                     selectedAmount === preset
                       ? 'border-blue-500 bg-blue-50 text-blue-700'
                       : 'border-gray-200 hover:border-gray-300 text-gray-700'
@@ -210,6 +194,9 @@ export default function donationForm({user, campaign} : Props) {
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">
           <p className="text-xs text-gray-500">By continuing, you agree to our terms of service</p>
         </div>
+      </div>
+      <div className='w-1/2 h-full'>
+        <img src="/img/payimg.webp" alt="payment" loading='lazy'className='h-full w-full'/>
       </div>
     </div>
   )

@@ -55,11 +55,11 @@ export default function Footer() {
             <p className="text-blue-200 mb-4">
               Stay updated with our latest campaigns and success stories.
             </p>
-            <div className="flex">
+            <div className="flex rounded-lg bg-white">
               <input
                 type="email"
                 placeholder="Your email"
-                className="px-4 py-2 rounded-l-lg focus:outline-none text-gray-800 w-full"
+                className="px-4 py-2  focus:outline-none text-black w-full"
               />
               <button className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg transition-colors">
                 <i className="ph ph-paper-plane-right"></i>

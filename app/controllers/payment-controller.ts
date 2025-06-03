@@ -37,9 +37,9 @@ export default class PaymentController {
           const campaign = await Campaign.find(donation.campaignId)
           console.log('campaign data :', campaign)
           if (campaign) {
-            const currentAmount = Number(campaign.collected_amount ?? 0)
+            const currentAmount = Number(campaign.collectedAmount ?? 0)
             const addedAmount = Number(donation.amount ?? 0)
-            campaign.collected_amount = currentAmount + addedAmount
+            campaign.collectedAmount = currentAmount + addedAmount
             await campaign.save()
           } else {
             console.warn('Campaign not found:', donation.campaignId)
