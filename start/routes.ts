@@ -5,6 +5,7 @@ import CampaignsController from '#controllers/campaigns_controller'
 import DonationsController from '#controllers/donations_controller'
 import TransactionsController from '#controllers/transactions_controller'
 import PaymentController from '#controllers/payment-controller'
+import BlocksController from '#controllers/blocks_controller'
 
 router.on('/').renderInertia('home')
 
@@ -45,6 +46,8 @@ router.group(() => {
   router.put('/transactions/:id', [TransactionsController, 'update'])
   
   router.delete('/transactions/:id', [TransactionsController, 'destroy'])
+
+  router.get('/blocks/validate', [BlocksController, 'validate'])
 
 })
 .use([

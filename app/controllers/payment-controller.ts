@@ -2,6 +2,7 @@ import Campaign from '#models/campaign'
 import Donation from '#models/donation'
 import Transaction from '#models/transaction'
 import type { HttpContext } from '@adonisjs/core/http'
+import BlocksController from './blocks_controller.js'
 
 export default class PaymentController {
   public async callback({ request, response }: HttpContext) {
@@ -12,7 +13,10 @@ export default class PaymentController {
       const orderId = data.order_id
       const transactionStatus = data.transaction_status
       
-      const transaction = await Transaction.findBy('order_id', orderId)
+      const transaction = await Transaction.query()
+        .where('order_id', orderId)
+        .preload('donation') // Tambahkan preload
+        .first()
       if (!transaction) {
         console.warn('Transaction not found:', orderId)
         return response.status(404).json({ message: 'Transaction not found' })
@@ -21,6 +25,9 @@ export default class PaymentController {
       if (transactionStatus === 'capture' || transactionStatus === 'settlement') {
         transaction.status = 'success'
         await transaction.save()
+
+        const blocksController = new BlocksController()
+        await blocksController.createBlockForTransaction(transaction)
         
         const donation = await Donation.find(transaction.donationId)
         if (donation) {

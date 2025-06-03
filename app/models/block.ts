@@ -9,7 +9,7 @@ export default class Block extends BaseModel {
   declare index: number
 
   @column()
-  declare transactionId: string
+  declare transactionId: number
 
   @column()
   declare data: any
