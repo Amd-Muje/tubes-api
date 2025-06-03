@@ -111,7 +111,7 @@ export default class CampaignsController {
         'img_url',
         'category',
         'description',
-        'targetAmount',
+        'target_amount',
         'startDate',
         'endDate',
       ])
@@ -193,11 +193,6 @@ export default class CampaignsController {
     return inertia.render('Campaigns/detail', { id: params.id })
   }
   public async create({ inertia, auth, response }: HttpContext) {
-
-    if (!auth.user) {
-      return response.redirect("/login")
-    }
-
-    return inertia.render('makecampaign')
+    return inertia.render('Campaigns/makecampaign')
   }
 }

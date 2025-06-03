@@ -20,12 +20,12 @@ export default function MakeCampaign() {
     try {
       const user = localStorage.getItem('userId')
       const response = await apiService.createCampaign({
-        user_id: user!, // You should get this from your auth context/state
+        userId: user!,
         title: formData.title,
         description: formData.description,
         target_amount: formData.targetAmount,
-        start_date: formData.startDate,
-        end_date: formData.endDate,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
         category: formData.category,
         img_url: formData.imageUrl
       })

@@ -35,12 +35,12 @@ class ApiService {
     return response.json()
   }
   async createCampaign(campaignData: {
-    user_id?: string,
+    userId?: string,
     title: string,
     description: string,
     target_amount: string,
-    start_date: string,
-    end_date: string,
+    startDate: string,
+    endDate: string,
     category: string,
     img_url: string
   }) {
