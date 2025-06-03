@@ -42,7 +42,7 @@ const Login = () => {
       console.log("ini adalah token :", token)
       console.log("in user id", userId)
 
-      localStorage.setItem('authToken', token)
+      localStorage.setItem('access_token', token)
       localStorage.setItem('userId', userId)
 
       if (!response.ok) {
@@ -50,7 +50,7 @@ const Login = () => {
       }
 
       // Save the token to localStorage or sessionStorage
-      localStorage.setItem('authToken', token)
+      localStorage.setItem('access_token', token)
 
       // Redirect to home page after successful login
       window.location.href = '/'
@@ -69,7 +69,11 @@ const Login = () => {
           <p className="text-center text-gray-600 mb-6">Please enter your credentials to log in</p>
 
           {error && <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">{error}</div>}
-
+          <a href="/google/redirect">
+          <button className='border p-2 mx-auto rounded-lg flex px-6 cursor-pointer border-gray-300'>
+          <i className="ph ph-google-logo"></i>
+          </button>
+          </a>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label htmlFor="email" className="block mb-1 font-medium text-gray-700">

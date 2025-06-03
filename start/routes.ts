@@ -4,10 +4,62 @@ import UsersController from '#controllers/users_controller'
 import CampaignsController from '#controllers/campaigns_controller'
 import DonationsController from '#controllers/donations_controller'
 import TransactionsController from '#controllers/transactions_controller'
+import User from '#models/user'
 import PaymentController from '#controllers/payment-controller'
 import BlocksController from '#controllers/blocks_controller'
 
 router.on('/').renderInertia('home')
+
+router.get('/google/redirect', ({ ally }) => {
+  return ally.use('google').redirect()
+})
+
+router.get('/google/callback', async ({ ally, auth, inertia }) => {
+  const google = ally.use('google')
+
+  if (google.accessDenied()) {
+    return 'Access was denied'
+  }
+
+  if (google.stateMisMatch()) {
+    return 'Request expired. Retry again'
+  }
+
+  if (google.hasError()) {
+    return google.getError()
+  }
+
+  const googleUser = await google.user()
+
+  const user = await User.firstOrCreate(
+    { email: googleUser.email },
+    {
+      email: googleUser.email,
+      name: googleUser.name,
+      avatarurl: googleUser.avatarUrl,
+    }
+  )
+  
+  const token = await auth.use('api').authenticateAsClient(user, ['*'])
+
+  // Share auth data dengan inertia
+  inertia.share({
+    auth: {
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        token: token
+      }
+    }
+  })
+
+  // Redirect ke halaman perantara
+  return inertia.render('Auth/authcallback', {
+    token: token.headers!.authorization
+  })
+})
+
 
 router.get('/detail/:id', [CampaignsController, 'detail'])
 router.on('/login').renderInertia('Auth/login').middleware(middleware.iner())
@@ -17,10 +69,10 @@ router.post('/users/login', [UsersController, 'login']).middleware(middleware.in
 router.get('/campaigns', [CampaignsController, 'index'])
 router.get('/campaign/:id', [CampaignsController, 'show'])
 router.post('/api/payment/callback' , [PaymentController, 'callback'])
+router.get('/campaign', [CampaignsController, 'create'])
 
 router.group(() => {
   router.get('/donation', [DonationsController, 'donate'])
-  router.get('/campaign', [CampaignsController, 'create'])
   
   
   router.post('/campaigns', [CampaignsController, 'store'])

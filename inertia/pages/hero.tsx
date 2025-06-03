@@ -26,16 +26,17 @@ export default function Hero() {
           </p>
           <div className="flex flex-wrap gap-4">
             <a
-              href="/start-campaign"
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full font-medium flex items-center transition-all shadow-lg hover:shadow-xl"
+              // href="/api/campaign"
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full font-medium flex items-center transition-all shadow-lg hover:shadow-xl" onClick={()=>{
+                const token = localStorage.getItem('access_token')
+                if(!token){
+                  window.location.href='/login'
+                  return
+                }
+                window.location.href='/campaign'
+              }}
             >
               Start a Campaign <i className="ph ph-arrow-right ml-2"></i>
-            </a>
-            <a
-              href="/explore"
-              className="px-6 py-3 bg-transparent border-2 border-blue-300 hover:bg-blue-800 rounded-full font-medium transition-all"
-            >
-              Explore Projects
             </a>
           </div>
         </div>

@@ -162,7 +162,7 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           <div className="flex gap-3">
             <button
             onClick={() => {
-              const token = localStorage.getItem('authToken')
+              const token = localStorage.getItem('access_token')
                 if(!token){
                   window.location.href='/login'
                   return

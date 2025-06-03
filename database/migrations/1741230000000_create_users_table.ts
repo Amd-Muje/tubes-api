@@ -7,9 +7,9 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').unsigned()
       table.string('name').notNullable()
-      table.string('img_url').nullable()
+      table.string('avatarurl').nullable()
       table.string('email').notNullable().unique()
-      table.string('password').notNullable()
+      table.string('password').nullable().defaultTo('')
       table.enum('role', ['admin', 'user']).defaultTo('user').notNullable()
       table.timestamp('created_at', { useTz: true }).defaultTo(this.now()).notNullable()
       table.timestamp('updated_at', { useTz: true }).defaultTo(this.now()).nullable()

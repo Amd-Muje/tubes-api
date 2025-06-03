@@ -54,8 +54,6 @@ export default class UsersController {
 
     return response.status(201).json({ message: 'user registered succesfully', user })
   }
-
-  // Login User
 // Login User
 public async login({ auth, request, response, inertia }: HttpContext) {
   const { email, password } = request.only(['email', 'password'])
@@ -81,7 +79,7 @@ public async login({ auth, request, response, inertia }: HttpContext) {
           name: user.name, 
           email: user.email,
           role: user.role,
-          img_url: user.img_url
+          avatarUrl: user.avatarurl
         }
       }
     })
@@ -93,7 +91,7 @@ public async login({ auth, request, response, inertia }: HttpContext) {
         name: user.name,
         email: user.email, 
         role: user.role,
-        img_url: user.img_url,
+        avatarUrl: user.avatarurl,
       },
       token,
     })
@@ -119,7 +117,7 @@ public async login({ auth, request, response, inertia }: HttpContext) {
 
       return response.json({
         message: 'user updated succesfully',
-        user: { id: userData.id, name: userData.name, email: userData.email, img_url: userData.img_url, },
+        user: { id: userData.id, name: userData.name, email: userData.email, img_url: userData.avatarurl, },
       })
     } catch (error) {
       return response.status(500).json({ message: 'Internal server error' })
@@ -163,7 +161,7 @@ public async login({ auth, request, response, inertia }: HttpContext) {
           name: user.name,
           email: user.email,
           role: user.role,
-          img_url: user.img_url
+          avatarUrl: user.avatarurl
         }
       })
     } catch (error) {
