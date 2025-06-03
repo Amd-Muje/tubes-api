@@ -1,6 +1,6 @@
 'use client'
 
-import { formatCurrency, formatDate, calculateProgress, daysRemaining } from '../../../lib/utils'
+import { formatCurrency, formatDate, daysRemaining, calculateProgress } from '../../../lib/utils'
 import { useState } from 'react'
 
 export interface Campaign {
@@ -25,7 +25,7 @@ interface CampaignCardProps {
 export default function CampaignCard({ campaign }: CampaignCardProps) {
   const collectedAmount = Number(campaign.collected)
   const targetAmount = Number(campaign.target)
-  const progress =  targetAmount > 0 ? (collectedAmount /  targetAmount) * 100 : 0
+  const progress =  calculateProgress(collectedAmount,targetAmount)
   const days = daysRemaining(campaign.due) // Changed from endDate
   const [isHovered, setIsHovered] = useState(false)
   const isAdmin = localStorage.getItem('userRole') === 'admin'

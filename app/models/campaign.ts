@@ -23,10 +23,10 @@ export default class Campaign extends BaseModel {
   declare description: string
 
   @column()
-  declare target_amount: number
+  declare targetAmount: number
 
   @column()
-  declare collected_amount: number
+  declare collectedAmount: number
 
   @column()
   declare status: 'pending' | 'approved' | 'rejected' | 'completed'

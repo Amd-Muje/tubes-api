@@ -50,7 +50,18 @@ class ApiService {
     })
     return response.json()
   }
-
+  async createDonation(donationData: {
+    userId: number,
+    campaignId: number,
+    amount: number,
+    paymentMethod: string
+  }) {
+    const response = await this.fetchWithAuth('/donations', {
+      method: 'POST',
+      body: JSON.stringify(donationData),
+    })
+    return response.json()
+  }
 }
 
 export const apiService = new ApiService()

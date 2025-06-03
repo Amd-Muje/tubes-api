@@ -56,15 +56,15 @@ const Login = () => {
 
   return (
     <div className="h-screen flex justify-center items-center p-5">
-      <div className="p-10 bg-white rounded-lg shadow-md flex items-center gap-4 w-full h-full">
-        <div className="w-[35%] flex flex-col ">
+      <div className="bg-white rounded-lg shadow-md flex items-center gap-4 w-full h-full">
+        <div className="w-[35%] flex flex-col p-10">
           <h1 className="text-2xl font-bold text-center mb-2 text-gray-800">Welcome Back</h1>
           <p className="text-center text-gray-600 mb-6">Please enter your credentials to log in</p>
 
           {error && <div className="bg-red-50 text-red-700 p-3 rounded-md mb-4">{error}</div>}
           <a href="/google/redirect">
           <button className='border p-2 mx-auto rounded-lg flex px-6 cursor-pointer border-gray-300'>
-          <i className="ph ph-google-logo"></i>
+          <i className="ph ph-google-logo text-blue-700 text-2xl"></i>
           </button>
           </a>
           <form onSubmit={handleSubmit}>
@@ -136,7 +136,7 @@ const Login = () => {
             </div>
           </form>
         </div>
-        <div className="bg-[url('/img/pictside.jpg')] bg-cover bg-center w-[65%] h-full rounded-lg"></div>
+        <div className="bg-[url('/img/loginimg.webp')] bg-cover bg-center w-[65%] h-full rounded-lg" ></div>
       </div>
     </div>
   )

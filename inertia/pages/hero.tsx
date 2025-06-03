@@ -62,7 +62,7 @@ export default function Hero() {
                 <i className="ph ph-wallet text-3xl text-blue-200"></i>
               </div>
               <div>
-                <div className="text-2xl md:text-3xl font-bold">$2.5M</div>
+                <div className="text-2xl md:text-3xl font-bold">RP2.5M</div>
                 <div className="text-blue-200 text-sm">Total Funds Raised</div>
               </div>
             </div>

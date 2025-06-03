@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Heart, Info, Share2, Users, Calendar } from 'lucide-react'
 import { router } from '@inertiajs/react'
+import { calculateProgress } from '~/lib/utils'
 
 interface Campaign {
   id: string
@@ -70,9 +71,7 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
   const collectedAmount = Number(campaign.collected)
   const targetAmount = Number(campaign.target)
   
-  const percentFunded =
-    targetAmount > 0 ? (collectedAmount /  targetAmount) * 100 : 0
-  
+  const percentFunded = calculateProgress(collectedAmount,targetAmount)
 
   const hasEnded = new Date(campaign.due) < new Date()
   const daysLeft = !hasEnded
@@ -82,14 +81,13 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
     : 0
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-blue-700 mb-6">Discover Campaigns</h1>
-      <div className="max-w-3xl mx-auto bg-white rounded-xl overflow-hidden shadow-sm">
-        <div className="relative h-72">
+    <div className="container w-screen h-screen">
+      <div className="w-screen h-screen bg-white overflow-x-hidden shadow-sm flex">
+        <div className="relative h-screen w-1/2">
           <img
             src={campaign.img_url || '/placeholder.svg'}
             alt={campaign.title || 'Campaign Image'}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
 
           <div className="absolute top-5 left-5 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
@@ -110,7 +108,7 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 px-10 w-1/2">
           <h2 className="text-2xl font-bold text-blue-700 mb-3">
             {campaign.title || 'Untitled Campaign'}
           </h2>
@@ -120,8 +118,8 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
 
           <div className="mb-6">
             <div className="flex justify-between mb-2">
-              <span className="font-semibold text-lg">${campaign.collected || 0}</span>
-              <span className="font-semibold text-lg">of ${campaign.target || 0}</span>
+              <span className="font-semibold text-lg">Rp.{campaign.collected || 0}</span>
+              <span className="font-semibold text-lg">of Rp.{campaign.target || 0}</span>
             </div>
 
             <div className="w-full h-2.5 bg-gray-200 rounded-full overflow-hidden">
@@ -165,7 +163,7 @@ const CampaignDetailPage = ({ id }: { id: string }) => {
                   },
                 })
               }}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded flex items-center justify-center transition-colors"
+              className=" bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded flex items-center justify-center transition-colors"
             >
               <Heart size={18} className="mr-2" />
               Donate

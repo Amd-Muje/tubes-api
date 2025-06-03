@@ -19,11 +19,22 @@ export interface PageProps {
   [key: string]: any
 }
 
+interface Campaign {
+  id: number
+  title: string
+  category: string
+  owner: string
+}
+
 export default function Navbar() {
   const { auth = { user: null } } = usePage<PageProps>().props
   const [user, setUser] = useState<User | null>(auth?.user)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Campaign[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
 
   useEffect(() => {
     const validateUser = async () => {
@@ -49,7 +60,42 @@ export default function Navbar() {
     validateUser()
   }, [user])
 
-  // Update handleLogout
+  // Search functionality
+  useEffect(() => {
+    const searchCampaigns = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([])
+        setShowSearchResults(false)
+        return
+      }
+
+      setIsSearching(true)
+      try {
+        const response = await fetch('/campaigns')
+        if (response.ok) {
+          const data = await response.json()
+          const campaigns = data.campaigns || []
+          
+          // Filter campaigns based on title
+          const filteredCampaigns = campaigns.filter((campaign: Campaign) =>
+            campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
+          ).slice(0, 5) // Limit to 5 results
+          
+          setSearchResults(filteredCampaigns)
+          setShowSearchResults(true)
+        }
+      } catch (error) {
+        console.error('Error searching campaigns:', error)
+        setSearchResults([])
+      } finally {
+        setIsSearching(false)
+      }
+    }
+
+    const debounceTimer = setTimeout(searchCampaigns, 300)
+    return () => clearTimeout(debounceTimer)
+  }, [searchQuery])
+
   const handleLogout = async () => {
     try {
       localStorage.removeItem('access_token')
@@ -66,6 +112,17 @@ export default function Navbar() {
 
   const getFirstName = (user: User) => {
     return user.name.split(' ')[0]
+  }
+
+  const handleSearchResultClick = (campaignId: number) => {
+    setSearchQuery('')
+    setShowSearchResults(false)
+    window.location.href = `/detail/${campaignId}`
+  }
+
+  const handleSearchInputBlur = () => {
+    // Delay hiding results to allow clicking on them
+    setTimeout(() => setShowSearchResults(false), 200)
   }
 
   return (
@@ -118,9 +175,58 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Search campaigns..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                onBlur={handleSearchInputBlur}
                 className="bg-blue-600/50 text-white placeholder-blue-300 border border-blue-500 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 w-48 transition-all focus:w-64"
               />
               <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
+              
+              {/* Search Results Dropdown */}
+              {showSearchResults && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-80 overflow-y-auto z-50">
+                  {isSearching ? (
+                    <div className="p-4 text-center text-gray-500">
+                      <i className="ph ph-spinner animate-spin mr-2"></i>
+                      Searching...
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <>
+                      {searchResults.map((campaign) => (
+                        <div
+                          key={campaign.id}
+                          onClick={() => handleSearchResultClick(campaign.id)}
+                          className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                        >
+                          <div className="text-gray-800 font-medium text-sm">
+                            {campaign.title}
+                          </div>
+                          <div className="text-gray-500 text-xs mt-1">
+                            {campaign.category} • by {campaign.owner}
+                          </div>
+                        </div>
+                      ))}
+                      <div className="p-2 text-center border-t border-gray-100">
+                        <Link
+                          href={`/campaigns?search=${encodeURIComponent(searchQuery)}`}
+                          className="text-blue-600 text-sm hover:underline"
+                          onClick={() => {
+                            setSearchQuery('')
+                            setShowSearchResults(false)
+                          }}
+                        >
+                          View all results for "{searchQuery}"
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="p-4 text-center text-gray-500 text-sm">
+                      No campaigns found for "{searchQuery}"
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Conditional rendering for Login/Sign In vs Profile */}
@@ -227,9 +333,44 @@ export default function Navbar() {
                   <input
                     type="text"
                     placeholder="Search campaigns..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchQuery.length >= 2 && setShowSearchResults(true)}
+                    onBlur={handleSearchInputBlur}
                     className="bg-blue-600/50 text-white placeholder-blue-300 border border-blue-500 rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full"
                   />
                   <i className="ph ph-magnifying-glass absolute left-3 top-2.5 text-blue-300"></i>
+                  
+                  {/* Mobile Search Results */}
+                  {showSearchResults && (
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 max-h-60 overflow-y-auto z-50">
+                      {isSearching ? (
+                        <div className="p-4 text-center text-gray-500">
+                          <i className="ph ph-spinner animate-spin mr-2"></i>
+                          Searching...
+                        </div>
+                      ) : searchResults.length > 0 ? (
+                        searchResults.map((campaign) => (
+                          <div
+                            key={campaign.id}
+                            onClick={() => handleSearchResultClick(campaign.id)}
+                            className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          >
+                            <div className="text-gray-800 font-medium text-sm">
+                              {campaign.title}
+                            </div>
+                            <div className="text-gray-500 text-xs mt-1">
+                              {campaign.category} • by {campaign.owner}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-4 text-center text-gray-500 text-sm">
+                          No campaigns found for "{searchQuery}"
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </li>
               {!user && (
